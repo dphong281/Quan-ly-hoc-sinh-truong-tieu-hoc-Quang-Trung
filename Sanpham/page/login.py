@@ -1,81 +1,65 @@
 import tkinter as tk
 from tkinter import messagebox
-from common.button import CustomButton
+import os
 
 
 class LoginPage:
-    def __init__(self, master, app_manager):
+    def __init__(self, master, app):
         self.master = master
-        self.app_manager = app_manager
-        self.config()
+        self.app = app
         self.view()
 
-    def config(self):
-        self.master.title("Đăng nhập")
-        self.master.geometry("300x200")
-
     def view(self):
-        # Label tiêu đề
-        label = tk.Label(self.master, text="Đăng nhập", font=("Arial", 20))
-        label.pack(pady=10)
+        # Header
+        tk.Label(self.master, text="Đăng nhập", font=("Arial", 20)).pack(pady=20)
 
-        # Label username
-        lib_user = tk.Label(self.master, text="Username:")
-        lib_user.place(x=20, y=60)
+        # Username
+        tk.Label(self.master, text="Username").pack()
+        self.entry_user = tk.Entry(self.master)
+        self.entry_user.pack()
 
-        # Label password
-        lib_pass = tk.Label(self.master, text="Password:")
-        lib_pass.place(x=20, y=100)
+        # Password
+        tk.Label(self.master, text="Password").pack()
+        self.entry_pass = tk.Entry(self.master, show="*")
+        self.entry_pass.pack()
 
-        # Ô nhập username
-        self.entry_username = tk.Entry(self.master)
-        self.entry_username.place(x=90, y=60)
+        self.entry_user.bind('<Return>', self.login)
+        self.entry_pass.bind('<Return>', self.login)
+        # Bind thêm vào cả cửa sổ chính cho chắc
+        self.master.bind('<Return>', self.login)
 
-        # Ô nhập password
-        self.entry_password = tk.Entry(self.master, show="*")
-        self.entry_password.place(x=90, y=100)
+        # Nút Login
+        tk.Button(self.master, text="Login", command=self.login).pack(pady=10)
 
-        # Nút tạo tài khoản
-        btn = CustomButton(
-            self.master,
-            text="Tạo tài khoản",
-            command=self.tao_tk,
-            style_type="primary"
-        )
-        btn.place(x=40, y=140)
+    def login(self, event=None):
+        u = self.entry_user.get()
+        p = self.entry_pass.get()
 
-        # Nút đăng nhập
-        btn = CustomButton(
-            self.master,
-            text="Đăng nhập",
-            command=self.login,
-            style_type="success"
-        )
-        btn.place(x=160, y=140)
+        if not u or not p:
+            messagebox.showerror("Lỗi", "Thiếu thông tin")
+            return
 
-    def tao_tk(self):
-        print("Chuyển sang trang tạo tài khoản")
-        self.app_manager.show_taotk_page()
-
-    def login(self):
-        username = self.entry_username.get()
-        password = self.entry_password.get()
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        file_path = os.path.join(base_dir, "database", "tk.csv")
 
         try:
-            file = open("database/tk.csv", "r", encoding="utf-8")
+            if not os.path.exists(file_path):
+                messagebox.showerror("Lỗi", f"Không tìm thấy file tại: {file_path}")
+                return
 
-            for line in file:
-                tk_info = line.strip().split(",")
+            with open(file_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    data = line.strip().split(",")
 
-                if len(tk_info) >= 2:
-                    if username == tk_info[0] and password == tk_info[1]:
-                        messagebox.showinfo("Thông báo", "Đăng nhập thành công")
-                        file.close()
-                        self.app_manager.show_quanlytk_page()
-                        return  # ⚠️ thêm dòng này
+                    if len(data) >= 2:
+                        if u == data[0] and p == data[1]:
+                            self.master.unbind('<Return>')
 
-            file.close()
-            messagebox.showerror("Thông báo", "Đăng nhập thất bại")
+                            messagebox.showinfo("OK", "Đăng nhập thành công")
+                            self.app.show_dashboard(u)
+                            return
 
-        except FileNotFoundError:
-            messagebox.showerror("Thông báo", "Chưa có tài khoản nào được tạo")
+            messagebox.showerror("Sai", "Sai tài khoản hoặc mật khẩu")
+
+        except Exception as e:
+            messagebox.showerror("Lỗi hệ thống", str(e))

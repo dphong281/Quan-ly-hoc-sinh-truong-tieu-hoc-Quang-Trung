@@ -1,57 +1,119 @@
 import pandas as pd
+import os
 
 
-class Query:
-    def __init__(self, file_path, title=None):
+class HocSinhQuery:
+    def __init__(self, file_path="database/hocsinh.csv"):
         self.file_path = file_path
-        self.title = title
+        self.columns = ["stt", "ho_ten", "ma_hs", "lop"]
 
-    def list(self, page, page_size):
-        data = pd.read_csv(self.file_path)
-        if self.title:
-            data = data[self.title]
+        # nếu chưa có file → tạo file mới
+        if not os.path.exists(self.file_path):
+            df = pd.DataFrame(columns=self.columns)
+            df.to_csv(self.file_path, index=False)
+
+    # ================= LOAD =================
+    def _load(self):
+        return pd.read_csv(self.file_path)
+
+    def _save(self, df):
+        df.to_csv(self.file_path, index=False)
+
+    # ================= LIST =================
+    def list(self, page=1, page_size=10):
+        df = self._load()
+
+        total = len(df)
         start = (page - 1) * page_size
         end = start + page_size
 
-        page = {
+        return {
             "page": page,
             "page_size": page_size,
-            "total_records": len(data),
-            "total_pages": (len(data) + page_size - 1) // page_size,
-            "data": data[start:end]
+            "total_records": total,
+            "total_pages": (total + page_size - 1) // page_size,
+            "data": df.iloc[start:end]
         }
-        return page
-    def search(self, title_keyword, keyword):
-        data = pd.read_csv(self.file_path)
-        if self.title:
-            data = data[self.title]
-        result = data[data[title_keyword].astype(str).str.contains(keyword)]
+
+    # ================= SEARCH =================
+    def search(self, keyword):
+        df = self._load()
+
+        result = df[
+            df["ho_ten"].astype(str).str.contains(keyword, case=False, na=False) |
+            df["ma_hs"].astype(str).str.contains(keyword, case=False, na=False) |
+            df["lop"].astype(str).str.contains(keyword, case=False, na=False)
+        ]
+
         return result
-    def delete(self,title_keyword, keyword):
-        data = pd.read_csv(self.file_path)
-        if self.title:
-            data = data[self.title]
-        result = data[~data[title_keyword].astype(str).str.contains(keyword)]
-        result.to_csv(self.file_path, index=False)
+
+    # ================= CREATE =================
+    def create(self, ho_ten, ma_hs, lop):
+        df = self._load()
+
+        # check trùng mã HS
+        if ma_hs in df["ma_hs"].values:
+            raise ValueError(f"Mã HS '{ma_hs}' đã tồn tại")
+
+        # tạo STT
+        if df.empty:
+            stt = 1
+        else:
+            stt = int(df["stt"].max()) + 1
+
+        new_row = pd.DataFrame([{
+            "stt": stt,
+            "ho_ten": ho_ten,
+            "ma_hs": ma_hs,
+            "lop": lop
+        }])
+
+        df = pd.concat([df, new_row], ignore_index=True)
+        self._save(df)
+
         return True
-    def update(self, title_keyword, keyword, new_data):
-        data = pd.read_csv(self.file_path)
-        if self.title:
-            data = data[self.title]
-        data.loc[data[title_keyword].astype(str).str.contains(keyword), self.title] = new_data
-        data.to_csv(self.file_path, index=False)
+
+    # ================= UPDATE =================
+    def update(self, stt, ho_ten, ma_hs, lop):
+        df = self._load()
+
+        # check trùng mã HS (trừ chính nó)
+        check = df[(df["ma_hs"] == ma_hs) & (df["stt"] != stt)]
+        if not check.empty:
+            raise ValueError(f"Mã HS '{ma_hs}' đã tồn tại")
+
+        df.loc[df["stt"] == stt, ["ho_ten", "ma_hs", "lop"]] = [ho_ten, ma_hs, lop]
+
+        self._save(df)
         return True
-    def create(self, new_data):
-        data = pd.read_csv(self.file_path)
-        if self.title:
-            data = data[self.title]
-        new_row = pd.DataFrame([new_data], columns=self.title)
-        data = pd.concat([data, new_row], ignore_index=True)
-        data.to_csv(self.file_path, index=False)
+
+    # ================= DELETE =================
+    def delete(self, stt):
+        df = self._load()
+
+        df = df[df["stt"] != stt]
+
+        # reset lại STT cho đẹp
+        df = df.reset_index(drop=True)
+        df["stt"] = df.index + 1
+
+        self._save(df)
         return True
-    def max(self, title_keyword):
-        data = pd.read_csv(self.file_path)
-        if self.title:
-            data = data[self.title]
-        max_value = data[title_keyword].max()
-        return max_value
+
+    # ================= GET ONE =================
+    def get_by_stt(self, stt):
+        df = self._load()
+
+        result = df[df["stt"] == stt]
+        if result.empty:
+            return None
+
+        return result.iloc[0].to_dict()
+
+    # ================= MAX =================
+    def max(self):
+        df = self._load()
+
+        if df.empty:
+            return 0
+        return int(df["stt"].max())

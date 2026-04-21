@@ -1,56 +1,40 @@
 import tkinter as tk
-from page.login import LoginPage
-from page.quanlyhs import QuanLyHSPage
-from page.themhs import ThemHSPage
-from page.suahs import SuaHSPage
+from Sanpham.page.login import LoginPage
+from Sanpham.page.dashboard import DashboardPage
 
-"lớp chính"
-class AppManager:
-    def __init__(self):    #"hàm khởi tạo"
-        self.root = tk.Tk()   #"self = AppManager"  #"root = để vẽ giao diện"
-        self.root.title("Quản lý học sinh - Tiểu học Quang Trung")
-        self.root.geometry("300x200")
-        self.current_page = None      #"lưu page hiện tại"
-        self.show_login_page()        #"mở app sẽ vào trang login"
 
-    "Xóa tất cả widget của page hiện tại"
-    def clear_current_page(self):
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.geometry("1000x600")
+
+        self.current_page = None
+
+        self.show_login()
+
+    def clear(self):
         if self.current_page:
-            for widget in self.root.winfo_children():   #"lặp qua tất cả widget trong page"
-                widget.destroy()     #"chuyển trang -> xóa toàn bộ page cũ"
+            self.current_page.destroy()
 
-    "Hiển thị trang đăng nhập"
-    def show_login_page(self):
-        self.clear_current_page()
-        self.root.geometry("300x200")
-        self.current_page = LoginPage(self.root, self)
-        "LoginPage() = tạo 1 trang login"
-        "(.....) = truyền dữ liệu vào tràn"
-        " self.current_page = lưu trang hiện tại "
+    def show_login(self):
+        self.clear()
 
-    "Hiển thị trang QL hs"
-    def show_quanlyhs_page(self):
-        self.clear_current_page()
-        self.root.geometry("600x400")
-        self.current_page = QuanLyHSPage(self.root, self)
+        self.current_page = tk.Frame(self.root)
+        self.current_page.pack(fill="both", expand=True)
 
-    "Hiển thị trang thêm thông tin hs"
-    def show_themhs_page(self):
-        self.clear_current_page()
-        self.root.geometry("400x300")
-        self.current_page = ThemHSPage(self.root, self)
+        LoginPage(self.current_page, self)
 
-    "Hiển thị trang sửa thông tin hs"
-    def show_suahs_page(self, index):
-        self.clear_current_page()
-        self.root.geometry("400x300")
-        self.current_page = SuaHSPage(self.root, self, index)
+    def show_dashboard(self, username):
+        self.clear()
 
-    "chạy ứng dụng"
-    def run(self):
-        self.root.mainloop()
+        self.current_page = tk.Frame(self.root)
+        self.current_page.pack(fill="both", expand=True)
+
+        DashboardPage(self.current_page, self, username)
 
 
 if __name__ == "__main__":
-    app = AppManager()
-    app.run()
+    root = tk.Tk()
+    root.title("Quản lý học sinh")
+    app = App(root)
+    root.mainloop()
