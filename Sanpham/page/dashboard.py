@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk  # Thêm thư viện này để xử lý ảnh PNG
+import os
 
 
 class DashboardPage:
@@ -9,24 +11,33 @@ class DashboardPage:
         self.username = username
         self.dropdown_visible = False
 
-        # Màu sắc chủ đạo theo ảnh
+        # Màu sắc chủ đạo
         self.color_navy = "#1e376d"
         self.color_text = "#1e376d"
+
+        # Đường dẫn ảnh (Lấy thư mục hiện tại -> vào folder images -> file logo.png)
+        current_dir = os.path.dirname(__file__)
+        self.logo_path = os.path.join(os.path.dirname(current_dir), "assets", "logo.png")
 
         self.build_ui()
 
     def build_ui(self):
         # 1. ===== BANNER TRẮNG =====
-        banner_top = tk.Frame(self.master, bg="white", height=120)
+        banner_top = tk.Frame(self.master, bg="#f0fbff", height=120)
         banner_top.pack(fill="x")
         banner_top.pack_propagate(False)
 
-        # Giả lập Logo
-        logo_placeholder = tk.Label(
-            banner_top, text="LOGO", fg="white", bg="#00a8e8",
-            font=("Arial", 12, "bold"), width=10, height=3
-        )
-        logo_placeholder.pack(side="left", padx=50, pady=10)
+        # --- PHẦN LOGO MỚI ---
+        try:
+            # Mở và chỉnh kích thước ảnh
+            img = Image.open(self.logo_path)
+            img = img.resize((120, 100), Image.Resampling.LANCZOS)
+            self.logo_img = ImageTk.PhotoImage(img)
+
+            logo_label = tk.Label(banner_top, image=self.logo_img, bg="#f0fbff")
+            logo_label.pack(side="left", padx=50, pady=10)
+        except Exception as e:
+            print(f"Lỗi load ảnh: {e}")
 
         # Cụm chữ tiêu đề trung tâm
         title_frame = tk.Frame(banner_top, bg="white")
@@ -36,7 +47,7 @@ class DashboardPage:
             title_frame,
             text="TRƯỜNG TIỂU HỌC QUANG TRUNG",
             fg=self.color_text,
-            bg="white",
+            bg="#f0fbff",
             font=("Times New Roman", 26, "bold")
         ).pack()
 
@@ -44,7 +55,6 @@ class DashboardPage:
         nav_bar = tk.Frame(self.master, bg=self.color_navy, height=45)
         nav_bar.pack(fill="x")
 
-        # Danh sách các nút menu
         menu_items = [
             ("🏠 TRANG CHỦ", self.home),
             ("📚 QUẢN LÝ HS", self.students),
@@ -57,7 +67,7 @@ class DashboardPage:
                 nav_bar, text=text, fg="white", bg=self.color_navy,
                 activebackground="#2a4d9c", activeforeground="white",
                 bd=0, font=("Arial", 10, "bold"), padx=15, cursor="hand2",
-                command=cmd if cmd else lambda: None
+                command=cmd
             )
             btn.pack(side="left", fill="y")
 
@@ -84,13 +94,14 @@ class DashboardPage:
 
         self.home()
 
+    # --- Các hàm bổ trợ giữ nguyên ---
     def toggle_dropdown(self, event):
         if self.dropdown_visible:
             self.dropdown.place_forget()
             self.dropdown_visible = False
         else:
             x = self.user_label.winfo_rootx() - self.master.winfo_rootx()
-            y = nav_bar_height = 150
+            y = 165
             self.dropdown.place(x=x, y=y, width=120)
             self.dropdown.lift()
             self.dropdown_visible = True
