@@ -47,11 +47,9 @@ class DashboardPage:
         # Danh sách các nút menu
         menu_items = [
             ("🏠 TRANG CHỦ", self.home),
-            ("📚 HỌC SINH", self.students),
-            ("📝 ĐĂNG KÝ", None),
+            ("📚 QUẢN LÝ HS", self.students),
             ("💰 TÀI CHÍNH", self.taichinh),
             ("📊 ĐÁNH GIÁ", self.danhgia),
-            ("ℹ️ THÔNG TIN", None),
         ]
 
         for text, cmd in menu_items:
