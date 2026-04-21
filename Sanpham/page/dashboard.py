@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk  # Thêm thư viện này để xử lý ảnh PNG
+from PIL import Image, ImageTk
 import os
 
+from Sanpham.page.trangchu import TrangChuView
+from Sanpham.page.qlhs import QLHSView
 
 class DashboardPage:
     def __init__(self, master, app, username):
@@ -15,7 +17,7 @@ class DashboardPage:
         self.color_navy = "#1e376d"
         self.color_text = "#1e376d"
 
-        # Đường dẫn ảnh (Lấy thư mục hiện tại -> vào folder images -> file logo.png)
+        # Đường dẫn ảnh logo (Lùi 1 cấp ra khỏi folder chứa file này để vào assets)
         current_dir = os.path.dirname(__file__)
         self.logo_path = os.path.join(os.path.dirname(current_dir), "assets", "logo.png")
 
@@ -27,11 +29,9 @@ class DashboardPage:
         banner_top.pack(fill="x")
         banner_top.pack_propagate(False)
 
-        # --- PHẦN LOGO MỚI ---
         try:
-            # Mở và chỉnh kích thước ảnh
             img = Image.open(self.logo_path)
-            img = img.resize((120, 100), Image.Resampling.LANCZOS)
+            img = img.resize((130, 100), Image.Resampling.LANCZOS)
             self.logo_img = ImageTk.PhotoImage(img)
 
             logo_label = tk.Label(banner_top, image=self.logo_img, bg="#f0fbff")
@@ -39,8 +39,7 @@ class DashboardPage:
         except Exception as e:
             print(f"Lỗi load ảnh: {e}")
 
-        # Cụm chữ tiêu đề trung tâm
-        title_frame = tk.Frame(banner_top, bg="white")
+        title_frame = tk.Frame(banner_top, bg="#f0fbff")
         title_frame.pack(side="left", expand=True)
 
         tk.Label(
@@ -71,7 +70,6 @@ class DashboardPage:
             )
             btn.pack(side="left", fill="y")
 
-        # Nút User
         self.user_label = tk.Label(
             nav_bar, text=f"👤 {self.username} ▼", fg="white",
             bg=self.color_navy, font=("Arial", 10, "bold"),
@@ -79,6 +77,24 @@ class DashboardPage:
         )
         self.user_label.pack(side="right", fill="y")
         self.user_label.bind("<Button-1>", self.toggle_dropdown)
+
+        # --- 2.5 THANH CHỮ CHẠY ---
+        self.marquee_frame = tk.Frame(self.master, bg="#2a4d9c", height=30)
+        self.marquee_frame.pack(fill="x")
+        self.marquee_frame.pack_propagate(False)
+
+        marquee_msg = "Chào mừng đến với Cổng thông tin trường Tiểu học Quang Trung - Chúc các thầy cô một ngày làm việc hiệu quả!"
+        self.label_marquee = tk.Label(
+            self.marquee_frame,
+            text=marquee_msg,
+            fg="white",
+            bg="#2a4d9c",
+            font=("Arial", 10, "italic bold")
+        )
+
+        self.marquee_x = 1000
+        self.label_marquee.place(x=self.marquee_x, y=4)
+        self.scroll_text()
 
         # 3. ===== DROPDOWN MENU =====
         self.dropdown = tk.Frame(self.master, bg="white", bd=1, relief="solid")
@@ -92,43 +108,54 @@ class DashboardPage:
         self.content = tk.Frame(self.master, bg="#f5f6fa")
         self.content.pack(fill="both", expand=True)
 
+        # Mặc định mở trang chủ khi đăng nhập xong
         self.home()
 
-    # --- Các hàm bổ trợ giữ nguyên ---
+    def scroll_text(self):
+        self.marquee_x -= 2
+        if self.marquee_x < -900:
+            self.marquee_x = self.master.winfo_width()
+        self.label_marquee.place(x=self.marquee_x, y=4)
+        self.master.after(30, self.scroll_text)
+
     def toggle_dropdown(self, event):
         if self.dropdown_visible:
             self.dropdown.place_forget()
             self.dropdown_visible = False
         else:
+            # Lấy vị trí tương đối để hiển thị menu dropdown
             x = self.user_label.winfo_rootx() - self.master.winfo_rootx()
-            y = 165
+            y = 195 # Điều chỉnh y một chút để không đè lên thanh marquee
             self.dropdown.place(x=x, y=y, width=120)
             self.dropdown.lift()
             self.dropdown_visible = True
 
     def clear(self):
+        """Xóa sạch vùng nội dung trước khi nạp trang mới"""
         for w in self.content.winfo_children():
             w.destroy()
 
     def home(self):
         self.clear()
-        tk.Label(self.content, text="Chào mừng bạn đến với hệ thống!",
-                 font=("Arial", 18), bg="#f5f6fa").pack(pady=50)
+        # Gọi class TrangChuView từ file trangchu.py
+        try:
+            TrangChuView(self.content)
+        except Exception as e:
+            tk.Label(self.content, text=f"Lỗi tải trang chủ: {e}", fg="red").pack(pady=20)
 
     def students(self):
         self.clear()
-        tk.Label(self.content, text="Quản lý hồ sơ học sinh",
-                 font=("Arial", 18), bg="#f5f6fa").pack(pady=50)
+        QLHSView(self.content)  # Gọi trang quản lý học sinh
 
     def danhgia(self):
         self.clear()
-        tk.Label(self.content, text="Bảng đánh giá kết quả",
-                 font=("Arial", 18), bg="#f5f6fa").pack(pady=50)
+        tk.Label(self.content, text="📊 BẢNG ĐÁNH GIÁ KẾT QUẢ",
+                 font=("Arial", 18, "bold"), bg="#f5f6fa", fg=self.color_navy).pack(pady=50)
 
     def taichinh(self):
         self.clear()
-        tk.Label(self.content, text="Thông tin học phí & Tài chính",
-                 font=("Arial", 18), bg="#f5f6fa").pack(pady=50)
+        tk.Label(self.content, text="💰 THÔNG TIN HỌC PHÍ & TÀI CHÍNH",
+                 font=("Arial", 18, "bold"), bg="#f5f6fa", fg=self.color_navy).pack(pady=50)
 
     def logout(self):
         if messagebox.askyesno("Xác nhận", "Bạn có muốn đăng xuất?"):
