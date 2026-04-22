@@ -25,18 +25,15 @@ class TrangChuView:
 
         self.canvas.configure(yscrollcommand=scrollbar.set)
 
-        # Pack Canvas và Scrollbar
         self.canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-        # --- LĂN CHUỘT ---
         self.parent.bind_all("<MouseWheel>", self._on_mousewheel)
 
-        # --- NỘI DUNG XẾP CHỒNG ---
         container = tk.Frame(self.scrollable_frame, bg="#f5f6fa", padx=30, pady=20)
         container.pack(fill="both", expand=True)
 
-        # 1. PHẦN TIN TỨC
+        # PHẦN TIN TỨC
         self.create_section(container, "📰 TIN TỨC MỚI", "#4e73df", [
             "• Thông báo lịch thi cuối kỳ II cho toàn thể học sinh khối 1 đến khối 5.",
             "• Chúc mừng các em học sinh đạt giải cao trong kỳ thi Trạng Nguyên Tiếng Việt cấp Thành phố.",

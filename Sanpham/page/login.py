@@ -20,7 +20,6 @@ class LoginPage:
         self.view()
 
     def view(self):
-        # Thiết lập nền toàn trang
         self.master.configure(bg=self.bg_color)
 
         # --- KHUNG ĐĂNG NHẬP ---
@@ -41,10 +40,6 @@ class LoginPage:
         tk.Label(self.card, text="Đăng nhập", font=("Arial", 20),
                  bg=self.card_color, fg="#333").pack(pady=(0, 20))
 
-        # --- FORM ---
-
-        # QUYỀN
-        self.create_input_row("🧑🏼‍💼", "Quản Trị Hệ Thống", is_readonly=True)
 
         # USERNAME
         self.entry_user = self.create_input_row("👤", "")
