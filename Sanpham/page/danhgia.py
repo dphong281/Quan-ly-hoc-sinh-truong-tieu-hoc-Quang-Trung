@@ -9,14 +9,14 @@ class DanhGiaView:
         self.master = master
         self.color_navy = "#1e376d"
 
-        # Thử tìm file theo nhiều cấp để chắc chắn
-        current_dir = os.path.dirname(__file__)  # Thư mục 'page'
-        # Lùi lại 1 cấp để vào 'Sanpham' rồi vào 'database'
+        
+        current_dir = os.path.dirname(__file__)  
+       
         self.csv_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
 
-        # Nếu vẫn không thấy, thử tìm ngay tại thư mục gốc của project
+       
         if not os.path.exists(self.csv_path):
-            # Lùi thêm 1 cấp nữa ra khỏi 'Sanpham'
+            
             project_root = os.path.dirname(os.path.dirname(current_dir))
             self.csv_path = os.path.join(project_root, "database", "hocsinh.csv")
 
@@ -91,7 +91,7 @@ class DanhGiaView:
         with open(self.csv_path, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-                # Kiểm tra cột ma_hs trong file csv của bạn
+               
                 if row['ma_hs '].strip().upper() == ma_nhap:
                     self.lbl_name.config(text=row['ho_ten '])
                     self.lbl_lop.config(text=row['lop'])
