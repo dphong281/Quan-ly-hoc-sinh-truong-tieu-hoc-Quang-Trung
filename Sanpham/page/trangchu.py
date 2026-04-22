@@ -9,13 +9,11 @@ class TrangChuView:
         self.draw()
 
     def draw(self):
-        # --- TẠO CANVAS VÀ SCROLLBAR ---
         self.canvas = tk.Canvas(self.parent, bg="#f5f6fa", highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.parent, orient="vertical", command=self.canvas.yview)
 
         self.scrollable_frame = tk.Frame(self.canvas, bg="#f5f6fa")
 
-        # Cấu hình vùng cuộn mỗi khi nội dung thay đổi
         self.scrollable_frame.bind(
             "<Configure>",
             lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -47,10 +45,10 @@ class TrangChuView:
             "• Thông báo thay đổi thực đơn bán trú áp dụng từ tuần sau."
         ])
 
-        # 2. PHẦN SỰ KIỆN NỔI BẬT
+        # PHẦN SỰ KIỆN NỔI BẬT
         self.create_section_event(container, "🌟 SỰ KIỆN NỔI BẬT", "#e74a3b")
 
-        # 3. PHẦN HOẠT ĐỘNG ĐOÀN ĐỘI
+        #PHẦN HOẠT ĐỘNG
         self.create_section(container, "🚩 HOẠT ĐỘNG ĐOÀN ĐỘI", "#1cc88a", [
             "📅 22/04: Ngày hội đọc sách và quyên góp sách cho thư viện vùng cao.",
             "📅 26/04: Tổ chức Đại hội Cháu ngoan Bác Hồ và tuyên dương các đội viên ưu tú.",
@@ -59,19 +57,14 @@ class TrangChuView:
             "📅 15/05: Lễ kỷ niệm ngày thành lập Đội Thiếu niên Tiền phong Hồ Chí Minh."
         ])
 
-        # Thêm khoảng trống dưới cùng
         tk.Frame(container, height=50, bg="#f5f6fa").pack()
 
-    # --- CÁC HÀM XỬ LÝ CUỘN ---
     def _on_mousewheel(self, event):
-        """Xử lý lăn chuột (Windows)"""
         self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def _on_canvas_configure(self, event):
-        """Đảm bảo chiều rộng của nội dung bằng chiều rộng canvas"""
         self.canvas.itemconfig(self.canvas_window, width=event.width)
 
-    # --- HÀM TẠO GIAO DIỆN ---
     def create_section(self, parent, title, color, items):
         frame = tk.Frame(parent, bg="white", bd=0, highlightthickness=1, highlightbackground="#dcdcdc")
         frame.pack(fill="x", pady=10)

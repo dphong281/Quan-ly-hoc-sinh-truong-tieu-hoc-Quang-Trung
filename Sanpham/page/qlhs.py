@@ -18,35 +18,35 @@ class QLHSView:
         self.main_frame = tk.Frame(self.parent, bg="#f5f6fa")
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # 1. TIÊU ĐỀ
+        # TIÊU ĐỀ
         tk.Label(self.main_frame, text="📚 QUẢN LÝ HỌC SINH",
                  font=("Arial", 16, "bold"), fg=self.color_navy, bg="#f5f6fa").pack(anchor="w", pady=(0, 15))
 
-        # 2. THANH CÔNG CỤ
+        #  THANH CÔNG CỤ
         toolbar = tk.Frame(self.main_frame, bg="#f5f6fa")
         toolbar.pack(fill="x", pady=(0, 15))
 
-        tk.Label(toolbar, text="🔍 Tìm kiếm:", font=("Arial", 10, "bold"), bg="#f5f6fa").pack(side="left")
+        tk.Label(toolbar, text=" Tìm kiếm:", font=("Arial", 10, "bold"), bg="#f5f6fa").pack(side="left")
         self.search_entry = tk.Entry(toolbar, font=("Arial", 10), width=35)
         self.search_entry.pack(side="left", padx=10)
         self.search_entry.insert(0, "Nhập tên, lớp hoặc mã HS...")
 
-        # Sự kiện khi gõ hoặc nhấn Enter để tìm
+        # nhấn Enter
         self.search_entry.bind("<FocusIn>", lambda e: self.search_entry.delete(0,
                                                                                'end') if self.search_entry.get() == "Nhập tên, lớp hoặc mã HS..." else None)
         self.search_entry.bind("<KeyRelease>", lambda e: self.search_data())
         self.search_entry.bind("<Return>", lambda e: self.search_data())
 
-        # Cụm nút Thêm/Xóa bên phải
-        btn_del = tk.Button(toolbar, text="🗑️ Xóa học sinh", bg="#e74a3b", fg="white",
+        #Thêm/Xóa
+        btn_del = tk.Button(toolbar, text="Xóa học sinh", bg="#e74a3b", fg="white",
                             font=("Arial", 9, "bold"), command=self.delete_student, padx=15, bd=0, cursor="hand2")
         btn_del.pack(side="right", padx=5)
 
-        btn_add = tk.Button(toolbar, text="➕ Thêm mới", bg="#1cc88a", fg="white",
+        btn_add = tk.Button(toolbar, text=" Thêm mới", bg="#1cc88a", fg="white",
                             font=("Arial", 9, "bold"), command=self.add_student_popup, padx=15, bd=0, cursor="hand2")
         btn_add.pack(side="right", padx=5)
 
-        # 3. BẢNG DỮ LIỆU
+        # BẢNG DỮ LIỆU
         table_frame = tk.Frame(self.main_frame, bg="white")
         table_frame.pack(fill="both", expand=True)
 
@@ -68,7 +68,7 @@ class QLHSView:
         self.tree.pack(side="left", fill="both", expand=True)
         sb.pack(side="right", fill="y")
 
-        # Phím tắt Delete để xóa
+        # Phím Delete
         self.tree.bind("<Delete>", lambda e: self.delete_student())
 
     def load_data(self):
@@ -98,13 +98,11 @@ class QLHSView:
                     self.tree.delete(item)
 
     def add_student_popup(self):
-        """Hiện cửa sổ nhập liệu đầy đủ thông tin"""
         pop = tk.Toplevel(self.parent)
         pop.title("Thêm học sinh mới")
         pop.geometry("350x300")
-        pop.grab_set()  # Khóa màn hình chính khi đang nhập
+        pop.grab_set()
 
-        # Giao diện nhập liệu
         fields = [("Họ và Tên:", "name"), ("Mã Học Sinh:", "id"), ("Lớp:", "class")]
         entries = {}
 
@@ -124,16 +122,16 @@ class QLHSView:
                 messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ các thông tin")
                 return
 
-            # Tính STT tự động
+            # STT tự động
             current_count = len(self.tree.get_children(""))
             new_stt = str(current_count + 1)
 
-            # Thêm trực tiếp vào bảng
+            # Thêm
             self.tree.insert("", "end", values=(new_stt, name, mshs, lop))
             messagebox.showinfo("Thành công", f"Đã thêm học sinh {name}")
             pop.destroy()
 
-        # Nhấn Enter để lưu
+        # Enter
         pop.bind("<Return>", lambda e: save())
         tk.Button(pop, text="Lưu thông tin ", bg=self.color_navy, fg="white",
                   font=("Arial", 10, "bold"), command=save, pady=8, padx=20).pack(pady=20)

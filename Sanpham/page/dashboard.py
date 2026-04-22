@@ -13,18 +13,17 @@ class DashboardPage:
         self.username = username
         self.dropdown_visible = False
 
-        # Màu sắc chủ đạo
         self.color_navy = "#1e376d"
         self.color_text = "#1e376d"
 
-        # Đường dẫn ảnh logo (Lùi 1 cấp ra khỏi folder chứa file này để vào assets)
+        # Đường dẫn ảnh logo
         current_dir = os.path.dirname(__file__)
         self.logo_path = os.path.join(os.path.dirname(current_dir), "assets", "logo.png")
 
         self.build_ui()
 
     def build_ui(self):
-        # 1. ===== BANNER TRẮNG =====
+        # ===== BANNER =====
         banner_top = tk.Frame(self.master, bg="#f0fbff", height=120)
         banner_top.pack(fill="x")
         banner_top.pack_propagate(False)
@@ -50,15 +49,15 @@ class DashboardPage:
             font=("Times New Roman", 26, "bold")
         ).pack()
 
-        # 2. ===== THANH MENU =====
+        # ===== THANH MENU =====
         nav_bar = tk.Frame(self.master, bg=self.color_navy, height=45)
         nav_bar.pack(fill="x")
 
         menu_items = [
-            ("🏠 TRANG CHỦ", self.home),
-            ("📚 QUẢN LÝ HS", self.students),
-            ("💰 TÀI CHÍNH", self.taichinh),
-            ("📊 ĐÁNH GIÁ", self.danhgia),
+            (" TRANG CHỦ", self.home),
+            (" QUẢN LÝ HS", self.students),
+            (" TÀI CHÍNH", self.taichinh),
+            (" ĐÁNH GIÁ", self.danhgia),
         ]
 
         for text, cmd in menu_items:
@@ -96,7 +95,7 @@ class DashboardPage:
         self.label_marquee.place(x=self.marquee_x, y=4)
         self.scroll_text()
 
-        # 3. ===== DROPDOWN MENU =====
+        # ===== DROPDOWN MENU =====
         self.dropdown = tk.Frame(self.master, bg="white", bd=1, relief="solid")
         tk.Button(
             self.dropdown, text="Đăng xuất", bg="white",
@@ -104,11 +103,10 @@ class DashboardPage:
             activebackground="#f0f0f0", font=("Arial", 10)
         ).pack(fill="x", padx=10, pady=5)
 
-        # 4. ===== VÙNG NỘI DUNG =====
+        # ===== VÙNG NỘI DUNG =====
         self.content = tk.Frame(self.master, bg="#f5f6fa")
         self.content.pack(fill="both", expand=True)
 
-        # Mặc định mở trang chủ khi đăng nhập xong
         self.home()
 
     def scroll_text(self):
@@ -118,26 +116,23 @@ class DashboardPage:
         self.label_marquee.place(x=self.marquee_x, y=4)
         self.master.after(30, self.scroll_text)
 
-    def toggle_dropdown(self, event):
+    def toggle_dropdown(self, event):  #nút đăng xuất
         if self.dropdown_visible:
             self.dropdown.place_forget()
             self.dropdown_visible = False
         else:
-            # Lấy vị trí tương đối để hiển thị menu dropdown
             x = self.user_label.winfo_rootx() - self.master.winfo_rootx()
-            y = 195 # Điều chỉnh y một chút để không đè lên thanh marquee
+            y = 195
             self.dropdown.place(x=x, y=y, width=120)
             self.dropdown.lift()
             self.dropdown_visible = True
 
     def clear(self):
-        """Xóa sạch vùng nội dung trước khi nạp trang mới"""
         for w in self.content.winfo_children():
             w.destroy()
 
     def home(self):
         self.clear()
-        # Gọi class TrangChuView từ file trangchu.py
         try:
             TrangChuView(self.content)
         except Exception as e:
@@ -145,16 +140,16 @@ class DashboardPage:
 
     def students(self):
         self.clear()
-        QLHSView(self.content)  # Gọi trang quản lý học sinh
+        QLHSView(self.content)
 
     def danhgia(self):
         self.clear()
-        tk.Label(self.content, text="📊 BẢNG ĐÁNH GIÁ KẾT QUẢ",
+        tk.Label(self.content, text=" BẢNG ĐÁNH GIÁ KẾT QUẢ",
                  font=("Arial", 18, "bold"), bg="#f5f6fa", fg=self.color_navy).pack(pady=50)
 
     def taichinh(self):
         self.clear()
-        tk.Label(self.content, text="💰 THÔNG TIN HỌC PHÍ & TÀI CHÍNH",
+        tk.Label(self.content, text=" THÔNG TIN HỌC PHÍ & TÀI CHÍNH",
                  font=("Arial", 18, "bold"), bg="#f5f6fa", fg=self.color_navy).pack(pady=50)
 
     def logout(self):

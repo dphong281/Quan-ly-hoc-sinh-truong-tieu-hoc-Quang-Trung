@@ -9,10 +9,10 @@ class LoginPage:
         self.master = master
         self.app = app
 
-        # --- CẤU HÌNH MÀU SẮC ---
-        self.bg_color = "#cfebff"  #nền
-        self.card_color = "white"  # Khung trắng
-        self.btn_color = "#5bc0de"  # Xanh nút đăng nhập
+        # --- MÀU SẮC ---
+        self.bg_color = "#cfebff"
+        self.card_color = "white"
+        self.btn_color = "#5bc0de"
 
         current_dir = os.path.dirname(__file__)
         self.logo_path = os.path.join(os.path.dirname(current_dir), "assets", "logo.png")
@@ -28,7 +28,7 @@ class LoginPage:
                              highlightthickness=1, highlightbackground="#dcdcdc")
         self.card.place(relx=0.5, rely=0.5, anchor="center")
 
-        # 1. LOGO
+        # LOGO
         try:
             img = Image.open(self.logo_path)
             img = img.resize((150, 110), Image.Resampling.LANCZOS)
@@ -37,39 +37,36 @@ class LoginPage:
         except:
             tk.Label(self.card, text="[ LOGO TRƯỜNG ]", bg=self.card_color, fg="gray").pack()
 
-        # 2. TIÊU ĐỀ
+        # TIÊU ĐỀ
         tk.Label(self.card, text="Đăng nhập", font=("Arial", 20),
                  bg=self.card_color, fg="#333").pack(pady=(0, 20))
 
-        # --- FORM NHẬP LIỆU ---
+        # --- FORM ---
 
-        # 3. QUYỀN (Mặc định và khóa)
+        # QUYỀN
         self.create_input_row("🧑🏼‍💼", "Quản Trị Hệ Thống", is_readonly=True)
 
-        # 4. USERNAME
+        # USERNAME
         self.entry_user = self.create_input_row("👤", "")
         # FIX: Bind phím Enter cho ô Username
         self.entry_user.bind('<Return>', self.login)
 
-        # 5. PASSWORD
+        # PASSWORD
         self.entry_pass = self.create_input_row("🔒", "", is_password=True)
         # FIX: Bind phím Enter cho ô Password
         self.entry_pass.bind('<Return>', self.login)
 
-        # 6. NÚT ĐĂNG NHẬP
+        # NÚT ĐĂNG NHẬP
         btn_login = tk.Button(self.card, text="➜ Đăng nhập", bg=self.btn_color, fg="white",
                               font=("Arial", 11, "bold"), bd=0, cursor="hand2",
                               command=self.login)
         btn_login.pack(fill="x", pady=(20, 10), ipady=8)
 
-        # FIX: Bind phím Enter cho toàn bộ cửa sổ (đề phòng)
         self.master.bind('<Return>', self.login)
 
-        # Tự động nhảy con trỏ vào ô Username khi mở app
         self.entry_user.focus_set()
 
     def create_input_row(self, icon_text, default_val, is_password=False, is_readonly=False):
-        """Hàm tạo hàng nhập liệu có icon phía trước"""
         row = tk.Frame(self.card, bg=self.card_color)
         row.pack(fill="x", pady=5)
 
@@ -77,7 +74,6 @@ class LoginPage:
         tk.Label(row, text=icon_text, bg="#f5f5f5", width=4,
                  relief="solid", bd=1, font=("Arial", 12)).pack(side="left", fill="y")
 
-        # Ô Entry
         entry = tk.Entry(row, font=("Arial", 11), relief="solid", bd=1)
         if default_val:
             entry.insert(0, default_val)
@@ -97,7 +93,7 @@ class LoginPage:
             messagebox.showerror("Lỗi", "Vui lòng nhập đầy đủ Username và Password")
             return
 
-        # Đường dẫn file database
+        # Đường dẫn tk.csv
         base_dir = os.path.dirname(os.path.dirname(__file__))
         file_path = os.path.join(base_dir, "database", "tk.csv")
 
@@ -111,7 +107,6 @@ class LoginPage:
                     data = line.strip().split(",")
                     if len(data) >= 2:
                         if u == data[0] and p == data[1]:
-                            # Gỡ bỏ bind phím Enter trước khi chuyển trang
                             self.master.unbind('<Return>')
                             messagebox.showinfo("Thành công", "Đăng nhập hệ thống thành công!")
                             self.app.show_dashboard(u)
