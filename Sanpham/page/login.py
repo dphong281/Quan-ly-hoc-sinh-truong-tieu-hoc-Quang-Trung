@@ -40,7 +40,6 @@ class LoginPage:
         tk.Label(self.card, text="Đăng nhập", font=("Arial", 20),
                  bg=self.card_color, fg="#333").pack(pady=(0, 20))
 
-
         # USERNAME
         self.entry_user = self.create_input_row("👤", "")
         # FIX: Bind phím Enter cho ô Username
