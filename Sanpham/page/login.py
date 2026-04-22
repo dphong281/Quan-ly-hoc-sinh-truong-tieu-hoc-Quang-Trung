@@ -42,12 +42,10 @@ class LoginPage:
 
         # USERNAME
         self.entry_user = self.create_input_row("👤", "")
-        # FIX: Bind phím Enter cho ô Username
         self.entry_user.bind('<Return>', self.login)
 
         # PASSWORD
         self.entry_pass = self.create_input_row("🔒", "", is_password=True)
-        # FIX: Bind phím Enter cho ô Password
         self.entry_pass.bind('<Return>', self.login)
 
         # NÚT ĐĂNG NHẬP

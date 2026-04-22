@@ -9,14 +9,11 @@ class DanhGiaView:
         self.master = master
         self.color_navy = "#1e376d"
 
-        # Thử tìm file theo nhiều cấp để chắc chắn
         current_dir = os.path.dirname(__file__)  # Thư mục 'page'
-        # Lùi lại 1 cấp để vào 'Sanpham' rồi vào 'database'
         self.csv_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
 
         # Nếu vẫn không thấy, thử tìm ngay tại thư mục gốc của project
         if not os.path.exists(self.csv_path):
-            # Lùi thêm 1 cấp nữa ra khỏi 'Sanpham'
             project_root = os.path.dirname(os.path.dirname(current_dir))
             self.csv_path = os.path.join(project_root, "database", "hocsinh.csv")
 
