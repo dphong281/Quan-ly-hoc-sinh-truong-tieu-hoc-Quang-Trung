@@ -82,7 +82,7 @@ class DashboardPage:
         self.marquee_frame.pack(fill="x")
         self.marquee_frame.pack_propagate(False)
 
-        marquee_msg = "Chào mừng đến với Cổng thông tin trường Tiểu học Quang Trung - Chúc các thầy cô một ngày làm việc hiệu quả!"
+        marquee_msg = "Chào mừng đến với hệ thống quản lý thông tin của trường Tiểu học Quang Trung - Chúc các thầy cô một ngày làm việc hiệu quả!"
         self.label_marquee = tk.Label(
             self.marquee_frame,
             text=marquee_msg,
