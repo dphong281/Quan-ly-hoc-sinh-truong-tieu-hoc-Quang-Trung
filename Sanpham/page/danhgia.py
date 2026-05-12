@@ -9,11 +9,14 @@ class DanhGiaView:
         self.master = master
         self.color_navy = "#1e376d"
 
-        current_dir = os.path.dirname(__file__)
-
+        
+        current_dir = os.path.dirname(__file__)  
+       
         self.csv_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
 
+       
         if not os.path.exists(self.csv_path):
+            
             project_root = os.path.dirname(os.path.dirname(current_dir))
             self.csv_path = os.path.join(project_root, "database", "hocsinh.csv")
 
@@ -88,7 +91,7 @@ class DanhGiaView:
         with open(self.csv_path, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
-
+               
                 if row['ma_hs '].strip().upper() == ma_nhap:
                     self.lbl_name.config(text=row['ho_ten '])
                     self.lbl_lop.config(text=row['lop'])
