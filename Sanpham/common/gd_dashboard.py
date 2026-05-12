@@ -201,20 +201,3 @@ class DashboardPage:
 
             card_1.config(height=100)
             card_1.grid_propagate(False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
