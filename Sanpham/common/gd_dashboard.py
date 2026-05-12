@@ -147,7 +147,6 @@ class DashboardPage:
                             column=1,
                             sticky="nsew")
 
-
     def the_thong_ke(self):
         self.the_1 = tk.Frame(self.phan_trai, bg="#ebebeb")
         self.the_1.pack(fill="x", pady=(0, 20))
@@ -171,11 +170,12 @@ class DashboardPage:
             # Dùng grid và sticky="nsew" để thẻ rộng ra theo cột
             card.grid(row=0, column=i, sticky="nsew", padx=(0, 15))
 
-            #cố định kích thước
+            # cố định kích thước
             card.config(height=100)
             card.grid_propagate(False)
 
-            tk.Label(card, text=title, bg="white", fg="#718096", font=("Arial", 9, "bold")).pack(anchor="w", padx=15,pady=(15, 0))
+            tk.Label(card, text=title, bg="white", fg="#718096", font=("Arial", 9, "bold")).pack(anchor="w", padx=15,
+                                                                                                 pady=(15, 0))
             tk.Label(card, text=value, bg="white", fg="#2D3748", font=("Arial", 18, "bold")).pack(anchor="w", padx=15)
             tk.Frame(card, bg=color, height=4).pack(side="bottom", fill="x")
 
@@ -205,7 +205,7 @@ class DashboardPage:
 
 
 
-        
+
 
 
 
