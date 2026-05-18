@@ -1,166 +1,156 @@
 import tkinter as tk
-from tkinter import messagebox
-from PIL import Image, ImageTk
+import csv
 import os
 
-from Sanpham.page.trangchu import TrangChuView
+from tkinter import messagebox
+
+from discord.ext.commands import command
+
+from Sanpham.common.ef_dashboard import UIEffects
+from Sanpham.common.gd_dashboard import DashboardView
+from Sanpham.page.danhgia import DanhGiaView
+from Sanpham.page.taichinh import TaiChinh
 from Sanpham.page.qlhs import QLHSView
+from Sanpham.page.caidat import CaiDatPage
 
 
 class DashboardPage:
-    def __init__(self, master, app, username):
+    def __init__(self, master, app_manager, username):
         self.master = master
-        self.app = app
-        self.username = username
-        self.dropdown_visible = False
+        self.app_manager = app_manager
 
-        self.color_navy = "#1e376d"
-        self.color_text = "#1e376d"
+        self.view = DashboardView(master, username)
 
-        current_dir = os.path.dirname(__file__)
-        self.logo_path = os.path.join(os.path.dirname(current_dir), "assets", "logo.png")
+        self.su_kien_giao_dien()
 
-        self.build_ui()
+        self.trang_chu()
 
-    def build_ui(self):
-        # ===== BANNER =====
-        self.banner_top = tk.Frame(self.master, bg="#f0fbff", height=120)
-        self.banner_top.pack(fill="x")
-        self.banner_top.pack_propagate(False)
+    def su_kien_giao_dien(self):
+        # 1. Lấy danh sách các nút từ giao diện ra cho ngắn gọn
+        buttons = self.view.menu_buttons
 
-        try:
-            img = Image.open(self.logo_path)
-            img = img.resize((130, 100), Image.Resampling.LANCZOS)
-            self.logo_img = ImageTk.PhotoImage(img)
+        # 2. Gán sự kiện chuyển trang trực tiếp cho từng nút
+        buttons["Trang Chủ"].config(command=self.trang_chu)
+        buttons["Học Sinh"].config(command=self.hoc_sinh)
+        buttons["Tài Chính"].config(command=self.tai_chinh)
+        buttons["Đánh Giá"].config(command=self.danh_gia)
+        buttons["Cài Đặt"].config(command=self.cai_dat)
 
-            logo_label = tk.Label(self.banner_top, image=self.logo_img, bg="#f0fbff")
-            logo_label.pack(side="left", padx=50, pady=10)
-        except Exception as e:
-            print(f"Lỗi load ảnh: {e}")
+        # Các nút chưa làm chức năng thì gán vào trang giả lập
+        buttons["Điểm Số"].config(command=lambda: self.hien_thi_trang_gia_lap("QUẢN LÝ ĐIỂM SỐ"))
 
-        title_frame = tk.Frame(self.banner_top, bg="#f0fbff")
-        title_frame.pack(side="left", expand=True)
+        # Nút đăng xuất
+        self.view.btn_logout.config(command=self.logout)
 
-        tk.Label(
-            title_frame,
-            text="TRƯỜNG TIỂU HỌC QUANG TRUNG",
-            fg=self.color_text,
-            bg="#f0fbff",
-            font=("Times New Roman", 26, "bold")
-        ).pack()
 
-        # ===== THANH MENU =====
-        self.nav_bar = tk.Frame(self.master, bg=self.color_navy, height=45)
-        self.nav_bar.pack(fill="x")
+    def xoa_vung_noi_dung(self):
+        for widget in self.view.vung_thay_doi.winfo_children():
+            widget.destroy()
 
-        menu_items = [
-            (" TRANG CHỦ", self.home),
-            (" QUẢN LÝ HS", self.students),
-            (" TÀI CHÍNH", self.taichinh),
-            (" ĐÁNH GIÁ", self.danhgia),
+
+    def trang_chu(self):
+
+        self.xoa_vung_noi_dung()
+        self.view.khung_trang_chu()
+
+        # --- ĐOẠN CODE ĐẾM HỌC SINH SIÊU NGẮN GỌN ---
+        tong_hs = 0
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
+
+        if os.path.exists(db_path):
+            try:
+                with open(db_path, mode="r", encoding="utf-8") as f:
+                    reader = csv.reader(f)
+
+                    tong_hs = len(list(reader)) - 1
+
+            except Exception as e:
+                print(f"Lỗi đọc file: {e}")
+        # --------------------------------------------
+
+                # 3. Thẻ thống kê (Thay con số "1,250" cũ bằng biến tong_hs vừa đếm được)
+        data_thong_ke = [
+            ("Tổng học sinh", f"{tong_hs}", "#4C51BF", "👥"),  # Hiện số thực tế ở đây
+            ("Học sinh mới", "25", "#48BB78", "📈"),
+            ("Tổng giáo viên", "85", "#ECC94B", "👨‍🏫")
+            ]
+        self.view.the_thong_ke(data_thong_ke)
+
+        self.view.the_bieu_do(["Phân loại học sinh", "Tình hình vắng học"])
+
+        ds_lich = [
+            ("Lớp Học Kỳ 1 - 1A1", "09:00 - 13:00"),
+            ("Lớp Học Kỳ 2 - 2A2", "13:00 - 15:00")]
+        ds_tin = [
+            "Thông báo nghỉ lễ 30/4 - 1/5",
+            "Lịch thi học kỳ mới nhất",
+            "Hợp tác đào tạo quốc tế"
         ]
+        self.view.lich_va_thong_bao(ds_lich, ds_tin)
 
-        for text, cmd in menu_items:
-            btn = tk.Button(
-                self.nav_bar, text=text, fg="white", bg=self.color_navy,
-                activebackground="#2a4d9c", activeforeground="white",
-                bd=0, font=("Arial", 10, "bold"), padx=15, cursor="hand2",
-                command=cmd
-            )
-            btn.pack(side="left", fill="y")
 
-        self.user_label = tk.Label(
-            self.nav_bar, text=f"👤 {self.username} ▼", fg="white",
-            bg=self.color_navy, font=("Arial", 10, "bold"),
-            cursor="hand2", padx=20
-        )
-        self.user_label.pack(side="right", fill="y")
-        self.user_label.bind("<Button-1>", self.toggle_dropdown)
+        ds_vinh_danh = [
+            ("Nguyễn Thị B", "1A1", "9.8"),
+            ("Trần Văn C", "1B2", "9.7"),
+            ("Lê Hoàng D", "1C3", "9.6"),
+            ("Phạm Minh E", "2A2", "9.5")
+        ]
+        items_vinh_danh = self.view.vinh_danh(ds_vinh_danh)
+        for item in items_vinh_danh:
+            UIEffects.apply_card_hover(item, normal_bg="white", hover_bg="#F3F4F6")
 
-        # ===== 3. THANH CHỮ CHẠY (Thêm self.) =====
-        self.marquee_frame = tk.Frame(self.master, bg="#2a4d9c", height=30)
-        self.marquee_frame.pack(fill="x")
-        self.marquee_frame.pack_propagate(False)
 
-        marquee_msg = "Chào mừng đến với hệ thống quản lý thông tin của trường Tiểu học Quang Trung - Chúc các thầy cô một ngày làm việc hiệu quả!"
-        self.label_marquee = tk.Label(
-            self.marquee_frame,
-            text=marquee_msg,
-            fg="white",
-            bg="#2a4d9c",
-            font=("Arial", 10, "italic bold")
-        )
-
-        self.marquee_x = 1000
-        self.label_marquee.place(x=self.marquee_x, y=4)
-        self.scroll_text()
-
-        # ===== DROPDOWN MENU =====
-        self.dropdown = tk.Frame(self.master, bg="white", bd=1, relief="solid")
-        tk.Button(
-            self.dropdown, text="Đăng xuất", bg="white",
-            fg="black", bd=0, command=self.logout,
-            activebackground="#f0f0f0", font=("Arial", 10)
-        ).pack(fill="x", padx=10, pady=5)
-
-        # ===== VÙNG NỘI DUNG =====
-        self.content = tk.Frame(self.master, bg="#f5f6fa")
-        self.content.pack(fill="both", expand=True)
-
-        self.home()
-
-    def scroll_text(self):
-        self.marquee_x -= 2
-        if self.marquee_x < -900:
-            self.marquee_x = self.master.winfo_width()
-        self.label_marquee.place(x=self.marquee_x, y=4)
-        self.master.after(30, self.scroll_text)
-
-    def toggle_dropdown(self, event):
-        if self.dropdown_visible:
-            self.dropdown.place_forget()
-            self.dropdown_visible = False
+    def hoc_sinh(self):
+        self.xoa_vung_noi_dung()
+        if QLHSView is not None:
+            try:
+                QLHSView(self.view.vung_thay_doi)
+            except Exception as e:
+                tk.Label(self.view.vung_thay_doi, text=f"Lỗi tải trang: {e}", fg="red").pack(pady=20)
         else:
-            x = self.user_label.winfo_rootx() - self.master.winfo_rootx()
+            self.hien_thi_trang_gia_lap("QUẢN LÝ HỌC SINH")
 
-            if self.banner_top.winfo_viewable():
-                y = 165
-            else:
-                y = 45
 
-            self.dropdown.place(x=x, y=y, width=120)
-            self.dropdown.lift()
-            self.dropdown_visible = True
-
-    def clear(self):
-        for w in self.content.winfo_children():
-            w.destroy()
-
-    def home(self):
-        self.banner_top.pack(side="top", fill="x", before=self.nav_bar)
-        self.marquee_frame.pack(fill="x", after=self.nav_bar)
-        self.clear()
+    def danh_gia(self):
+        """Xoá sạch trang cũ và nhét giao diện Đánh giá vào vùng hiển thị chính"""
+        self.xoa_vung_noi_dung()
         try:
-            TrangChuView(self.content)
+            DanhGiaView(self.view.vung_thay_doi)
         except Exception as e:
-            tk.Label(self.content, text=f"Lỗi tải trang chủ: {e}", fg="red").pack(pady=20)
+            tk.Label(self.view.vung_thay_doi, text=f"Lỗi tải trang đánh giá: {e}", fg="red").pack(pady=20)
 
-    def students(self):
-        self.banner_top.pack_forget()
-        self.marquee_frame.pack_forget()
-        self.clear()
-        QLHSView(self.content)
 
-    def danhgia(self):
-        self.clear()
-        tk.Label(self.content, text=" BẢNG ĐÁNH GIÁ KẾT QUẢ",
-                 font=("Arial", 18, "bold"), bg="#f5f6fa", fg=self.color_navy).pack(pady=50)
+    # 3. THÊM HÀM CHUYỂN SANG TRANG TÀI CHÍNH Ở ĐÂY
+    def tai_chinh(self):
+        """Xoá sạch trang cũ và nhúng trang Tài Chính vào vùng nội dung chính"""
+        self.xoa_vung_noi_dung()
+        try:
+            # Nhúng trực tiếp class Tài Chính (vốn là một tk.Frame) vào vùng thay đổi nội dung
+            trang_tc = TaiChinh(self.view.vung_thay_doi)
+            trang_tc.pack(fill="both", expand=True)
+        except Exception as e:
+            tk.Label(self.view.vung_thay_doi, text=f"Lỗi tải trang tài chính: {e}", fg="red").pack(pady=20)
 
-    def taichinh(self):
-        self.clear()
-        tk.Label(self.content, text=" THÔNG TIN HỌC PHÍ & TÀI CHÍNH",
-                 font=("Arial", 18, "bold"), bg="#f5f6fa", fg=self.color_navy).pack(pady=50)
+
+    def hien_thi_trang_gia_lap(self, tieu_de):
+        self.xoa_vung_noi_dung()
+        khung = tk.Frame(self.view.vung_thay_doi, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
+        khung.pack(fill="both", expand=True, padx=30, pady=20)
+        tk.Label(khung, text=f" GIAO DIỆN: {tieu_de}", font=("Arial", 18, "bold"), bg="white", fg="#0d62b8").pack(
+            expand=True)
+
 
     def logout(self):
         if messagebox.askyesno("Xác nhận", "Bạn có muốn đăng xuất?"):
-            self.app.show_login()
+            if hasattr(self.app_manager, 'show_login'):
+                self.app_manager.show_login()
+
+    def cai_dat(self):
+        self.xoa_vung_noi_dung()
+        try:
+            trang_cd = CaiDatPage(self.view.vung_thay_doi,self.view.username)
+            trang_cd.pack(fill="both", expand=True)
+        except Exception as e:
+            tk.Label(self.view.vung_thay_doi, text=f"Lỗi: {e}", fg="red").pack(pady=20)
