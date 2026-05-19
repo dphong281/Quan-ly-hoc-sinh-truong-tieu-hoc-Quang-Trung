@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import csv
 import os
+
+
 class TaiChinh(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
@@ -10,6 +12,7 @@ class TaiChinh(tk.Frame):
 
         self.setup_ui()
         self.render_data()
+
     def setup_ui(self):
         self.configure(bg="#f0f0f0")
 
@@ -72,6 +75,7 @@ class TaiChinh(tk.Frame):
         )
         self.btn_pay.pack(side="right")
 
+
     def render_data(self):
         for row in self.table.get_children():
             self.table.delete(row)
@@ -95,6 +99,7 @@ class TaiChinh(tk.Frame):
         except Exception as e:
             print(f"Lỗi đọc file: {e}")
 
+
     def process_payment(self):
         """Xử lý nghiệp vụ đóng tiền"""
         selected = self.table.selection()
@@ -113,6 +118,8 @@ class TaiChinh(tk.Frame):
             self.update_database(ma_hs, "Đã đóng")
             self.render_data()
             messagebox.showinfo("Thành công", "Đã cập nhật trạng thái tài chính!")
+
+
 
     def update_database(self, ma_hs, new_status):
         data = []

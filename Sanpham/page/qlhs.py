@@ -1,105 +1,71 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
-import csv
+from tkinter import messagebox
 import os
 
+from Sanpham.model.hocsinh import HocSinhModel
+from Sanpham.common.gd_qlhs import QLHSView  # Nhập giao diện từ file gd_qlhs.py vào
 
-class QLHSView:
+
+class QLHSController:
     def __init__(self, parent):
         self.parent = parent
         self.color_navy = "#1e376d"
+
+        # Thiết lập đường dẫn database CSV gốc của bạn
         current_dir = os.path.dirname(__file__)
         self.csv_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
 
-        self.draw()
+        # Khởi tạo Model dữ liệu
+        self.hs = HocSinhModel(self.csv_path, ["stt", "ho_ten", "ma_hs", "lop"])
+
+        # KHẮC PHỤC LỖI: Truyền cả parent và chính controller này (self) vào giao diện
+        self.view = QLHSView(self.parent, self)
+
+        # Tải dữ liệu lên bảng ngay khi chạy
         self.load_data()
-
-    def draw(self):
-        self.main_frame = tk.Frame(self.parent, bg="#f5f6fa")
-        self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # TIÊU ĐỀ
-        tk.Label(self.main_frame, text="📚 QUẢN LÝ HỌC SINH",
-                 font=("Arial", 16, "bold"), fg=self.color_navy, bg="#f5f6fa").pack(anchor="w", pady=(0, 15))
-
-        #  THANH CÔNG CỤ
-        toolbar = tk.Frame(self.main_frame, bg="#f5f6fa")
-        toolbar.pack(fill="x", pady=(0, 15))
-
-        tk.Label(toolbar, text=" Tìm kiếm:", font=("Arial", 10, "bold"), bg="#f5f6fa").pack(side="left")
-        self.search_entry = tk.Entry(toolbar, font=("Arial", 10), width=35)
-        self.search_entry.pack(side="left", padx=10)
-        self.search_entry.insert(0, "Nhập tên, lớp hoặc mã HS...")
-
-        # nhấn Enter
-        self.search_entry.bind("<FocusIn>", lambda e: self.search_entry.delete(0,
-                                                                               'end') if self.search_entry.get() == "Nhập tên, lớp hoặc mã HS..." else None)
-        self.search_entry.bind("<KeyRelease>", lambda e: self.search_data())
-        self.search_entry.bind("<Return>", lambda e: self.search_data())
-
-        #Thêm/Xóa
-        btn_del = tk.Button(toolbar, text="Xóa học sinh", bg="#e74a3b", fg="white",
-                            font=("Arial", 9, "bold"), command=self.delete_student, padx=15, bd=0, cursor="hand2")
-        btn_del.pack(side="right", padx=5)
-
-        btn_add = tk.Button(toolbar, text=" Thêm mới", bg="#1cc88a", fg="white",
-                            font=("Arial", 9, "bold"), command=self.add_student_popup, padx=15, bd=0, cursor="hand2")
-        btn_add.pack(side="right", padx=5)
-
-        # BẢNG DỮ LIỆU
-        table_frame = tk.Frame(self.main_frame, bg="white")
-        table_frame.pack(fill="both", expand=True)
-
-        columns = ("stt", "ho_ten", "ma_hs", "lop")
-        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=20)
-
-        self.tree.heading("stt", text="STT")
-        self.tree.heading("ho_ten", text="Họ và Tên")
-        self.tree.heading("ma_hs", text="Mã Học Sinh")
-        self.tree.heading("lop", text="Lớp")
-
-        self.tree.column("stt", width=60, anchor="center")
-        self.tree.column("ho_ten", width=350, anchor="w")
-        self.tree.column("ma_hs", width=150, anchor="center")
-        self.tree.column("lop", width=100, anchor="center")
-
-        sb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
-        self.tree.configure(yscrollcommand=sb.set)
-        self.tree.pack(side="left", fill="both", expand=True)
-        sb.pack(side="right", fill="y")
-
-        # Phím Delete
-        self.tree.bind("<Delete>", lambda e: self.delete_student())
 
     def load_data(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        if not os.path.exists(self.csv_path): return
+        """Tải dữ liệu từ Model học sinh và nạp thẳng vào Treeview của Giao diện"""
+        for item in self.view.tree.get_children():
+            self.view.tree.delete(item)
 
-        with open(self.csv_path, mode='r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                clean_row = {k.strip(): (v.strip() if v else "") for k, v in row.items() if k}
-                stt_raw = str(clean_row.get('stt', ''))
-                stt_final = stt_raw.split('.')[0] if '.' in stt_raw else stt_raw
+        result = self.hs.list()
+        data = result["data"]
 
-                self.tree.insert("", "end", values=(stt_final, clean_row.get('ho_ten', ''), clean_row.get('ma_hs', ''),
-                                                    clean_row.get('lop', '')))
+        for row in data:
+            stt_raw = str(row.get('stt', ''))
+            stt_final = stt_raw.split('.')[0] if '.' in stt_raw else stt_raw
 
-    def search_data(self):
-        query = self.search_entry.get().lower()
-        if query == "nhập tên, lớp hoặc mã hs...": return
-        self.load_data()
-        if query:
-            for item in self.tree.get_children():
-                v = self.tree.item(item)['values']
-                # Tìm ở cả 3 cột: Tên(1), Mã(2), Lớp(3)
-                if query not in str(v[1]).lower() and query not in str(v[2]).lower() and query not in str(v[3]).lower():
-                    self.tree.delete(item)
+            self.view.tree.insert("", "end", values=(
+                stt_final,
+                row.get('ho_ten', ''),
+                row.get('ma_hs', ''),
+                row.get('lop', '')
+            ))
 
-    def add_student_popup(self):
+    def delete_student(self):
+        """Xử lý xóa dòng đang được chọn từ bảng"""
+        selected = self.view.tree.selection()
+        if not selected:
+            messagebox.showwarning("Chọn học sinh", "Vui lòng chọn một học sinh trên bảng để xóa!")
+            return
+
+        values = self.view.tree.item(selected[0])['values']
+        student_name = values[1]
+        ma_hs = values[2]
+
+        if messagebox.askyesno("Xác nhận", f"Bạn có chắc muốn xóa học sinh '{student_name}'?"):
+            self.hs.delete("ma_hs", ma_hs)
+            self.view.tree.delete(selected[0])
+            self.view.status_label.config(text=f"Đã xóa học sinh: {student_name}")
+            self.load_data()  # Đồng bộ lại STT chuẩn sau khi xóa
+
+    def student_form_popup(self, student_data=None):
+        """Form Popup dùng chung cho cả Thêm mới và Chỉnh sửa thông tin"""
+        is_edit = student_data is not None
+
         pop = tk.Toplevel(self.parent)
-        pop.title("Thêm học sinh mới")
+        pop.title("Sửa thông tin học sinh" if is_edit else "Thêm học sinh mới")
         pop.geometry("350x300")
         pop.grab_set()
 
@@ -111,37 +77,81 @@ class QLHSView:
             entries[key] = tk.Entry(pop, font=("Arial", 10), width=30)
             entries[key].pack(pady=5)
 
-        entries["name"].focus_set()
+        # Nếu là chế độ SỬA: Đổ dữ liệu cũ vào các ô và khóa ô Mã HS lại
+        if is_edit:
+            entries["name"].insert(0, student_data["ho_ten"])
+            entries["id"].insert(0, student_data["ma_hs"])
+            entries["class"].insert(0, student_data["lop"])
+            entries["id"].config(state="disabled")
+            entries["name"].focus_set()
+        else:
+            entries["name"].focus_set()
 
-        def save():
-            name = entries["name"].get()
-            mshs = entries["id"].get()
-            lop = entries["class"].get()
+        def save_action():
+            name = entries["name"].get().strip()
+            mshs = entries["id"].get().strip()
+            lop = entries["class"].get().strip()
 
             if not name or not mshs or not lop:
-                messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ các thông tin")
+                messagebox.showwarning("Thiếu thông tin", "Vui lòng nhập đầy đủ các thông tin!")
                 return
 
-            # STT tự động
-            current_count = len(self.tree.get_children(""))
-            new_stt = str(current_count + 1)
+            if is_edit:
+                # Logic Sửa: Xóa cái cũ đi, ghi đè cái mới vào
+                self.hs.delete("ma_hs", student_data["ma_hs"])
+                updated_student = {"stt": student_data["stt"], "ho_ten": name, "ma_hs": student_data["ma_hs"],
+                                   "lop": lop}
+                self.hs.insert(updated_student)
+                self.view.status_label.config(text=f"Đã cập nhật thông tin học sinh: {name}")
+                messagebox.showinfo("Thành công", "Cập nhật thông tin thành công!")
+            else:
+                # Logic Thêm mới
+                current_count = len(self.view.tree.get_children(""))
+                new_student = {"stt": str(current_count + 1), "ho_ten": name, "ma_hs": mshs, "lop": lop}
+                self.hs.insert(new_student)
+                self.view.status_label.config(text=f"Đã thêm học sinh mới: {name}")
+                messagebox.showinfo("Thành công", f"Đã thêm học sinh {name}")
 
-            # Thêm
-            self.tree.insert("", "end", values=(new_stt, name, mshs, lop))
-            messagebox.showinfo("Thành công", f"Đã thêm học sinh {name}")
             pop.destroy()
+            self.load_data()
 
-        # Enter
-        pop.bind("<Return>", lambda e: save())
-        tk.Button(pop, text="Lưu thông tin ", bg=self.color_navy, fg="white",
-                  font=("Arial", 10, "bold"), command=save, pady=8, padx=20).pack(pady=20)
+        pop.bind("<Return>", lambda e: save_action())
+        btn_text = "Cập nhật thông tin" if is_edit else "Lưu thông tin"
+        tk.Button(pop, text=btn_text, bg=self.color_navy, fg="white",
+                  font=("Arial", 10, "bold"), command=save_action, pady=8, padx=20).pack(pady=20)
 
-    def delete_student(self):
-        selected = self.tree.selection()
+    def add_student_popup(self):
+        """Nút 'Thêm' từ giao diện gọi hàm này"""
+        self.student_form_popup(student_data=None)
+
+    def edit_student_popup(self):
+        """Nút 'Sửa' từ giao diện gọi hàm này"""
+        selected = self.view.tree.selection()
         if not selected:
-            messagebox.showwarning("Chọn học sinh", "Bạn chưa chọn dòng nào để xóa!")
+            messagebox.showwarning("Chọn học sinh", "Vui lòng chọn một học sinh trên bảng để sửa!")
             return
 
-        if messagebox.askyesno("Xác nhận", "Bạn có chắc muốn xóa học sinh đã chọn?"):
-            for item in selected:
-                self.tree.delete(item)
+        values = self.view.tree.item(selected[0])['values']
+        # Đóng gói dữ liệu dòng được chọn thành một Dictonary để truyền đi
+        selected_student = {
+            "stt": values[0],
+            "ho_ten": values[1],
+            "ma_hs": values[2],
+            "lop": values[3]
+        }
+        self.student_form_popup(student_data=selected_student)
+
+    # =========================================================================
+
+    def search_data(self):
+        """Logic tìm kiếm dữ liệu"""
+        query = self.view.search_entry.get().lower()
+        if query == "nhập tên, lớp hoặc mã hs...":
+            return
+
+        self.load_data()
+        if query:
+            for item in self.view.tree.get_children():
+                v = self.view.tree.item(item)['values']
+                if query not in str(v[1]).lower() and query not in str(v[2]).lower() and query not in str(v[3]).lower():
+                    self.view.tree.delete(item)

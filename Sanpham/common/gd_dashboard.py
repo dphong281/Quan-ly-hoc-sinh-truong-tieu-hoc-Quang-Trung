@@ -1,5 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
+from Sanpham.common.ef_dashboard import UIEffects
+
 
 class DashboardView:
     def __init__(self, master, username):
@@ -13,6 +15,8 @@ class DashboardView:
         self.mc_header()
         self.mc_body()
 
+
+    # PHẦN TRÁI
     def gd_sidebar(self):
         self.sidebar = tk.Frame(self.master, bg="#0d62b8", width=250)
         self.sidebar.pack(side="left", fill="y")
@@ -25,28 +29,30 @@ class DashboardView:
             self.lbl_logo_side = tk.Label(self.sidebar, image=self.photo_side, bg="#0d62b8")
             self.lbl_logo_side.pack(pady=25)
         except:
-            tk.Label(self.sidebar, text="LOGO SCHOOL", fg="white", bg="#0d62b8", font=("Arial", 16, "bold")).pack(pady=40)
+            tk.Label(self.sidebar, text="LOGO SCHOOL", fg="white", bg="#0d62b8", font=("Arial", 16, "bold")).pack(
+                pady=40)
 
-        # Lưu danh sách các button menu để file Logic có thể gán sự kiện sau
+        # DANH SÁCH BTN_PAGES
         self.menu_buttons = {}
         menu_items = ["Trang Chủ", "Học Sinh", "Điểm Số", "Tài Chính", "Đánh Giá", "Cài Đặt"]
 
         for item in menu_items:
             btn = tk.Button(
                 self.sidebar,
-                text=f"  {item}",
-                fg="white",
-                bg="#0d62b8",
-                font=("Arial", 12, "bold"),
-                bd=0,
-                anchor="w",
-                cursor="hand2",
-                activebackground="#0a4d91",
-                activeforeground="white"
+                text=f"  {item}", font=("Arial", 12, "bold"),
+                fg="white", bg="#0d62b8", bd=0,
+                anchor="w", cursor="hand2",
+                activebackground="#0a4d91", activeforeground="white"
             )
             btn.pack(fill="x", pady=2, padx=10, ipady=8)
+
+
+            # GỌI HÀM HU NÚT
+            UIEffects.apply_button_hover(btn, normal_bg="#0d62b8", hover_bg="#0a4d91")
             self.menu_buttons[item] = btn
 
+
+        # NÚT LOGOUT
         self.btn_logout = tk.Button(
             self.sidebar,
             text="  Đăng xuất",
@@ -58,52 +64,60 @@ class DashboardView:
         )
         self.btn_logout.pack(side="bottom", fill="x", pady=20, padx=10, ipady=8)
 
+
+    # PHẦN PHẢI
     def gd_main_content(self):
         self.main_area = tk.Frame(self.master, bg="#ebebeb")
         self.main_area.pack(side="right", fill="both", expand=True)
 
+    # HEADER
     def mc_header(self):
         self.header = tk.Frame(self.main_area, bg="white", height=70)
         self.header.pack(fill="x", side="top")
         self.header.pack_propagate(False)
 
+        # TRÁI HEADER
         phan_trai = tk.Frame(self.header, bg="white")
         phan_trai.pack(side="left", padx=20, pady=10)
 
-        tk.Label(phan_trai,
-                 text=f"Chào mừng, {self.username}!",
-                 bg="white",
-                 fg="#2D3748",
+        tk.Label(phan_trai, text=f"Chào mừng, {self.username}!", bg="white", fg="#2D3748",
                  font=("Arial", 14, "bold")).pack(anchor="w")
 
+        # PHẢI HEADER
         phan_phai = tk.Frame(self.header, bg="white")
         phan_phai.pack(side="right", padx=20, fill="y")
         tk.Label(phan_phai, text="👤", bg="white", font=("Arial", 14)).pack(side="left", padx=10)
 
-    def mc_body(self):
-        # Khu vực chứa nội dung thay đổi linh hoạt
-        self.vung_thay_doi = tk.Frame(self.main_area, bg="#ebebeb")
-        self.vung_thay_doi.pack(fill="both", expand=True)
 
+    # BODY
+    def mc_body(self):
+        self.change = tk.Frame(self.main_area, bg="#ebebeb")
+        self.change.pack(fill="both", expand=True)
+
+
+    # KHUNG NỘI DUNG
     def khung_trang_chu(self):
-        self.noidung = tk.Frame(self.vung_thay_doi, bg="#ebebeb")
+        self.noidung = tk.Frame(self.change, bg="#ebebeb")
         self.noidung.pack(fill="both", expand=True, padx=30, pady=20)
         self.noidung.columnconfigure(0, weight=7)
         self.noidung.columnconfigure(1, weight=3)
         self.noidung.rowconfigure(0, weight=1)
 
+        # NỘI DUNG TRÁI
         self.phan_trai = tk.Frame(self.noidung, bg="#ebebeb")
         self.phan_trai.grid(row=0, column=0, sticky="nsew", padx=(0, 20))
 
+        # NỘI DUNG PHẢI
         self.phan_phai = tk.Frame(self.noidung, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
         self.phan_phai.grid(row=0, column=1, sticky="nsew")
 
+
+    # THẺ 1
     def the_thong_ke(self, data_list):
         the_1 = tk.Frame(self.phan_trai, bg="#ebebeb")
         the_1.pack(fill="x", pady=(0, 20))
         the_1.columnconfigure((0, 1, 2), weight=1)
 
-        cards = []
         for i, (title, value, color, icon) in enumerate(data_list):
             card = tk.Frame(the_1, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
             card.grid(row=0, column=i, sticky="nsew", padx=(0, 15))
@@ -120,9 +134,8 @@ class DashboardView:
 
             tk.Label(text_f, text=title, bg="white", fg="#718096", font=("Arial", 9, "bold")).pack(anchor="w")
             tk.Label(text_f, text=value, bg="white", fg="#2D3748", font=("Arial", 18, "bold")).pack(anchor="w")
-            cards.append(card)
-        return cards
 
+    # THẺ 2
     def the_bieu_do(self, titles):
         the_2 = tk.Frame(self.phan_trai, bg="#ebebeb")
         the_2.pack(fill="x", pady=(0, 20))
@@ -134,9 +147,12 @@ class DashboardView:
             card_1.config(height=200)
             card_1.grid_propagate(False)
 
-            tk.Label(card_1, text=titles[i], bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(anchor="w", padx=15, pady=15)
+            tk.Label(card_1, text=titles[i], bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(anchor="w",
+                                                                                                        padx=15,
+                                                                                                        pady=15)
             tk.Label(card_1, text="📊 [Biểu đồ giả lập]", bg="white", fg="#CBD5E0", font=("Arial", 10)).pack(expand=True)
 
+    # THẺ 3
     def lich_va_thong_bao(self, ds_lich, ds_tin):
         the_3 = tk.Frame(self.phan_trai, bg="#ebebeb")
         the_3.pack(fill="both", expand=True)
@@ -144,7 +160,8 @@ class DashboardView:
 
         lich_frame = tk.Frame(the_3, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
         lich_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 15))
-        tk.Label(lich_frame, text="Lịch biểu hôm nay", bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(anchor="w", padx=15, pady=15)
+        tk.Label(lich_frame, text="Lịch biểu hôm nay", bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(
+            anchor="w", padx=15, pady=15)
 
         for ten, gio in ds_lich:
             row = tk.Frame(lich_frame, bg="white")
@@ -154,15 +171,21 @@ class DashboardView:
 
         tb_frame = tk.Frame(the_3, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
         tb_frame.grid(row=0, column=1, sticky="nsew")
-        tk.Label(tb_frame, text="Thông báo gần đây", bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(anchor="w", padx=15, pady=15)
+        tk.Label(tb_frame, text="Thông báo gần đây", bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(
+            anchor="w", padx=15, pady=15)
         for tin in ds_tin:
-            tk.Label(tb_frame, text=f" • {tin}", bg="white", fg="#4A5568", font=("Arial", 9), anchor="w").pack(fill="x", padx=15, pady=4)
+            tk.Label(tb_frame,
+                     text=f" • {tin}",
+                     bg="white", fg="#4A5568",
+                     font=("Arial", 9),
+                     anchor="w").pack(fill="x", padx=15, pady=4)
 
+
+    # THẺ 4
     def vinh_danh(self, ds_vinh_danh):
         tk.Label(self.phan_phai, text="Học sinh xuất sắc nhất tháng", bg="white", fg="#2D3748",
                  font=("Arial", 12, "bold"), justify="left").pack(anchor="w", padx=20, pady=20)
 
-        items = []
         for ten, lop, diem in ds_vinh_danh:
             item = tk.Frame(self.phan_phai, bg="white")
             item.pack(fill="x", padx=20, pady=10)
@@ -174,5 +197,5 @@ class DashboardView:
             tk.Label(info, text=ten, bg="white", font=("Arial", 9, "bold")).pack(anchor="w")
             tk.Label(info, text=lop, bg="white", fg="#718096", font=("Arial", 8)).pack(anchor="w")
             tk.Label(item, text=diem, bg="white", fg="#48BB78", font=("Arial", 10, "bold")).pack(side="right")
-            items.append(item)
-        return items
+
+            UIEffects.apply_card_hover(item, normal_bg="white", hover_bg="#F3F4F6")

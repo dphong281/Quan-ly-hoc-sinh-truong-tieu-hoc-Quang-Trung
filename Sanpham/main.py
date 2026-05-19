@@ -1,8 +1,8 @@
 import tkinter as tk
+
 from Sanpham.common.gd_login import LoginPage
-from Sanpham.page.caidat import CaiDatPage
 from Sanpham.page.dashboard import DashboardPage
-from page.taichinh import TaiChinh
+
 
 class App:
     def __init__(self, root):
@@ -26,7 +26,6 @@ class App:
         self.current_page = tk.Frame(self.root, bg="#D1E9F6")
         self.current_page.pack(fill="both", expand=True)
 
-
         LoginPage(self.current_page, self)
 
 
@@ -39,27 +38,6 @@ class App:
         self.current_page.pack(fill="both", expand=True)
 
         DashboardPage(self.current_page, self, username)
-
-    def show_taichinh(self):
-        self.clear()
-        # Thiết lập màu nền cho trang tài chính (tùy chọn)
-        self.root.configure(bg="#f0f0f0")
-
-        self.current_page = tk.Frame(self.root, bg="#f0f0f0")
-        self.current_page.pack(fill="both", expand=True)
-
-        # Khởi tạo class TaiChinh vào current_page
-        TaiChinh(self.current_page)
-
-    def show_setting(self):
-        self.clear()
-
-        self.root.configure(bg="#f0f0f0")
-
-        self.current_page = tk.Frame(self.root, bg="#f0f0f0")
-        self.current_page.pack(fill="both", expand=True)
-
-        CaiDatPage(self.current_page)
 
 
 if __name__ == "__main__":
