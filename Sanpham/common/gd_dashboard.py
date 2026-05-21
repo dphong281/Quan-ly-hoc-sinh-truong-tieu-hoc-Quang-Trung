@@ -23,7 +23,7 @@ class DashboardView:
         self.sidebar.pack_propagate(False)
 
         try:
-            img_side = Image.open("Sanpham/assets/logo.png")
+            img_side = Image.open("assets/logo.png")
             img_side = img_side.resize((190, 120), Image.LANCZOS)
             self.photo_side = ImageTk.PhotoImage(img_side)
             self.lbl_logo_side = tk.Label(self.sidebar, image=self.photo_side, bg="#0d62b8")

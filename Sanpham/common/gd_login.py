@@ -29,7 +29,7 @@ class LoginPage:
 
 
         # LOGO
-        img = Image.open("Sanpham/assets/logo.png")
+        img = Image.open("assets/logo.png")
         img = img.resize((200, 130), Image.LANCZOS)
         self.photo = ImageTk.PhotoImage(img)
         self.lbl_logo = tk.Label(self.frame_login, image=self.photo, bg="white")

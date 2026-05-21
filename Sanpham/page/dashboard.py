@@ -151,4 +151,3 @@ class DashboardPage:
     def diem_so(self):
         self.clear()
         trang_ds = DiemSoController(self.view.change)
-        trang_ds.pack(fill="both", expand=True)
