@@ -4,7 +4,7 @@ from tkinter import messagebox
 def kiem_tra_dang_nhap(u, p, app_manager):
 
     # HÀM ĐỌC FILE
-    with open("database/tk.csv", "r") as file:
+    with open("Sanpham/database/tk.csv", "r") as file:
         for line in file:
             tk_info = line.strip().split(",")
 

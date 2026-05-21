@@ -7,6 +7,7 @@ from Sanpham.common.gd_dashboard import DashboardView
 from Sanpham.page.danhgia import DanhGiaView
 from Sanpham.page.taichinh import TaiChinh
 from Sanpham.page.qlhs import QLHSController
+from Sanpham.page.diemso import DiemSoController
 from Sanpham.page.caidat import CaiDatPage
 
 
@@ -26,6 +27,7 @@ class DashboardPage:
 
         buttons["Trang Chủ"].config(command=self.trang_chu)
         buttons["Học Sinh"].config(command=self.hoc_sinh)
+        buttons["Điểm Số"].config(command=self.diem_so)
         buttons["Tài Chính"].config(command=self.tai_chinh)
         buttons["Đánh Giá"].config(command=self.danh_gia)
         buttons["Cài Đặt"].config(command=self.cai_dat)
@@ -35,6 +37,47 @@ class DashboardPage:
     def clear(self):
         for widget in self.view.change.winfo_children():
             widget.destroy()
+
+    def lay_hoc_sinh_xuat_sac(self, top=4):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        db_dir = os.path.join(os.path.dirname(current_dir), "database")
+        hs_path = os.path.join(db_dir, "hocsinh.csv")
+        diem_path = os.path.join(db_dir, "diemso.csv")
+
+        diem_dict = {}
+        if os.path.exists(diem_path):
+            with open(diem_path, mode="r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    ma = (row.get("ma_hs") or "").strip()
+                    if not ma:
+                        continue
+                    diem_dict[ma] = (row.get("tb_ca_nam") or "").strip()
+
+        ds_xep_hang = []
+        if os.path.exists(hs_path):
+            with open(hs_path, mode="r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    clean = {k.strip(): (v.strip() if v else "") for k, v in row.items() if k}
+                    ma_hs = clean.get("ma_hs", "")
+                    ho_ten = clean.get("ho_ten", "")
+                    lop = clean.get("lop", "")
+                    if not ma_hs or not ho_ten:
+                        continue
+
+                    tb_raw = diem_dict.get(ma_hs, "")
+                    if not tb_raw:
+                        continue
+                    try:
+                        diem_so = float(tb_raw.replace(",", "."))
+                    except ValueError:
+                        continue
+
+                    ds_xep_hang.append((ho_ten, lop, tb_raw, diem_so))
+
+        ds_xep_hang.sort(key=lambda x: x[3], reverse=True)
+        return [(ten, lop, diem) for ten, lop, diem, _ in ds_xep_hang[:top]]
 
     def trang_chu(self):
         self.clear()
@@ -71,13 +114,8 @@ class DashboardPage:
         ]
         self.view.lich_va_thong_bao(ds_lich, ds_tin)
 
-        ds_vinh_danh = [
-            ("Nguyễn Thị B", "1A1", "9.8"),
-            ("Trần Văn C", "1B2", "9.7"),
-            ("Lê Hoàng D", "1C3", "9.6"),
-            ("Phạm Minh E", "2A2", "9.5")
-        ]
-        # Gọi view hiển thị vinh danh (View đã tự tích hợp hiệu ứng hover bên trong)
+        # LOGIC: Top học sinh xuất sắc theo TB cả năm từ diemso.csv (ghép ma_hs với hocsinh.csv)
+        ds_vinh_danh = self.lay_hoc_sinh_xuat_sac()
         self.view.vinh_danh(ds_vinh_danh)
 
 
@@ -108,3 +146,9 @@ class DashboardPage:
         self.clear()
         trang_cd = CaiDatPage(self.view.change, self.view.username)
         trang_cd.pack(fill="both", expand=True)
+
+    # PAGE DIỂM SỐ
+    def diem_so(self):
+        self.clear()
+        trang_ds = DiemSoController(self.view.change)
+        trang_ds.pack(fill="both", expand=True)
