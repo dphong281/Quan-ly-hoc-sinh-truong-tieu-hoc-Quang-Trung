@@ -51,8 +51,9 @@ class TaiChinh(tk.Frame):
         self.table.heading("amount", text="Số Tiền (VNĐ)")
         self.table.heading("status", text="Trạng Thái")
 
+        # Cấu hình stretch=True để các cột tự giãn rộng khít giao diện màn hình
         self.table.column("id", width=100, anchor="center")
-        self.table.column("name", width=250)
+        self.table.column("name", width=250, stretch=True)
         self.table.column("amount", width=150, anchor="e")
         self.table.column("status", width=150, anchor="center")
 
@@ -75,64 +76,97 @@ class TaiChinh(tk.Frame):
         )
         self.btn_pay.pack(side="right")
 
-
     def render_data(self):
+        """Xóa bảng cũ và đọc dữ liệu dựa trên vị trí cột trong file CSV để tránh lỗi tiêu đề"""
         for row in self.table.get_children():
             self.table.delete(row)
         search_query = self.search_var.get().lower()
 
         if not os.path.exists(self.db_path):
-            return  # Nếu file không tồn tại thì thoát để tránh lỗi
+            print(f"Không tìm thấy file dữ liệu tại: {self.db_path}")
+            return
 
         try:
             with open(self.db_path, mode="r", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
+                reader = csv.reader(f)
+                try:
+                    header = next(reader)  # Bỏ qua dòng tiêu đề đầu tiên
+                except StopIteration:
+                    return  # File rỗng
+
                 for row in reader:
-                    # Lọc dữ liệu theo tên hoặc mã
-                    if search_query in row.get("ten_hs", "").lower() or search_query in row.get("ma_hs", "").lower():
-                        self.table.insert("", "end", values=(
-                            row.get("ma_hs"),
-                            row.get("ten_hs"),
-                            row.get("so_tien"),
-                            row.get("trang_thai")
-                        ))
+                    if not row or len(row) == 0:
+                        continue  # Bỏ qua dòng trống
+
+                    # Đọc chuẩn xác theo số thứ tự cột trong file CSV (Cột 0, Cột 1, Cột 2, Cột 3)
+                    ma_hs = row[0].strip() if len(row) > 0 else ""
+                    ten_hs = row[1].strip() if len(row) > 1 else ""
+                    so_tien = row[2].strip() if len(row) > 2 else ""
+                    trang_thai = row[3].strip() if len(row) > 3 else ""
+
+                    # Nếu dữ liệu các trường bị rỗng thì điền thông tin mặc định để không bị trắng bảng
+                    if not ten_hs:
+                        ten_hs = "(Chưa nhập tên)"
+                    if not so_tien:
+                        so_tien = "0"
+                    if not trang_thai:
+                        trang_thai = "Chưa đóng"
+
+                    # Lọc dữ liệu theo tên hoặc mã dựa trên thanh tìm kiếm
+                    if search_query in ten_hs.lower() or search_query in ma_hs.lower():
+                        self.table.insert("", "end", values=(ma_hs, ten_hs, so_tien, trang_thai))
         except Exception as e:
             print(f"Lỗi đọc file: {e}")
 
-
     def process_payment(self):
-        """Xử lý nghiệp vụ đóng tiền"""
+        """Xử lý nghiệp vụ đóng tiền khi bấm nút"""
         selected = self.table.selection()
         if not selected:
             messagebox.showwarning("Thông báo", "Vui lòng chọn học sinh cần đóng tiền!")
             return
 
         item = self.table.item(selected)
-        ma_hs, ten_hs, _, tinh_trang = item["values"]
-
-        if tinh_trang == "Đã đóng":
-            messagebox.showinfo("Thông báo", "Học sinh {ten_hs} đã hoàn thành học phí rồi.")
+        values = item.get("values", [])
+        if not values:
             return
 
-        if messagebox.askyesno("Xác nhận", "Xác nhận đóng tiền cho học sinh: {ten_hs}?"):
+        ma_hs, ten_hs, _, tinh_trang = values
+
+        if tinh_trang == "Đã đóng":
+            messagebox.showinfo("Thông báo", f"Học sinh {ten_hs} đã hoàn thành học phí rồi.")
+            return
+
+        if messagebox.askyesno("Xác nhận", f"Xác nhận đóng tiền cho học sinh: {ten_hs}?"):
             self.update_database(ma_hs, "Đã đóng")
             self.render_data()
             messagebox.showinfo("Thành công", "Đã cập nhật trạng thái tài chính!")
 
-
-
     def update_database(self, ma_hs, new_status):
+        """Cập nhật lại trạng thái đóng tiền vào file CSV dựa trên vị trí cột"""
         data = []
-        fieldnames = []
-        with open(self.db_path, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            fieldnames = reader.fieldnames
-            for row in reader:
-                if row["ma_hs"] == ma_hs:
-                    row["trang_thai"] = new_status
-                data.append(row)
 
-        with open(self.db_path, mode="w", newline='', encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(data)
+        if not os.path.exists(self.db_path):
+            return
+
+        try:
+            with open(self.db_path, mode="r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                header = next(reader)  # Lấy dòng tiêu đề
+                data.append(header)
+
+                for row in reader:
+                    if not row:
+                        continue
+                    # Nếu cột 0 (Mã số) trùng khớp thì cập nhật trạng thái ở cột 3
+                    if len(row) > 0 and row[0].strip() == str(ma_hs).strip():
+                        # Đảm bảo hàng có đủ số cột để ghi dữ liệu trạng thái
+                        while len(row) < 4:
+                            row.append("")
+                        row[3] = new_status
+                    data.append(row)
+
+            with open(self.db_path, mode="w", newline='', encoding="utf-8") as f:
+                writer = csv.writer(f)
+                writer.writerows(data)
+        except Exception as e:
+            print(f"Lỗi ghi file: {e}")
