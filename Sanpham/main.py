@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from Sanpham.common.gd_login import LoginPage
+from Sanpham.common.gd_login import LoginView
 from Sanpham.page.dashboard import DashboardPage
 
 
@@ -20,13 +20,12 @@ class App:
     def show_login(self):
         self.clear()
 
-        self.root.configure(bg="#D1E9F6") #nền app
+        self.root.configure(bg="#D1E9F6")
 
-        #frame login
         self.current_page = tk.Frame(self.root, bg="#D1E9F6")
         self.current_page.pack(fill="both", expand=True)
 
-        LoginPage(self.current_page, self)
+        LoginView(self.current_page, self)
 
 
     def show_dashboard(self, username):
@@ -42,5 +41,5 @@ class App:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = App(root)
+    app_manager = App(root)
     root.mainloop()

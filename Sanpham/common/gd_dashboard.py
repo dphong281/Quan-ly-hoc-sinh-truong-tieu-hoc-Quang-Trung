@@ -83,11 +83,6 @@ class DashboardView:
         tk.Label(phan_trai, text=f"Chào mừng, {self.username}!", bg="white", fg="#2D3748",
                  font=("Arial", 14, "bold")).pack(anchor="w")
 
-        # PHẢI HEADER
-        phan_phai = tk.Frame(self.header, bg="white")
-        phan_phai.pack(side="right", padx=20, fill="y")
-        tk.Label(phan_phai, text="👤", bg="white", font=("Arial", 14)).pack(side="left", padx=10)
-
 
     # BODY
     def mc_body(self):
@@ -134,23 +129,6 @@ class DashboardView:
 
             tk.Label(text_f, text=title, bg="white", fg="#718096", font=("Arial", 9, "bold")).pack(anchor="w")
             tk.Label(text_f, text=value, bg="white", fg="#2D3748", font=("Arial", 18, "bold")).pack(anchor="w")
-
-    # THẺ 2
-    def the_bieu_do(self, titles):
-        the_2 = tk.Frame(self.phan_trai, bg="#ebebeb")
-        the_2.pack(fill="x", pady=(0, 20))
-        the_2.columnconfigure((0, 1), weight=1)
-
-        for i in range(2):
-            card_1 = tk.Frame(the_2, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
-            card_1.grid(row=0, column=i, sticky="nsew", padx=(0, 15))
-            card_1.config(height=200)
-            card_1.grid_propagate(False)
-
-            tk.Label(card_1, text=titles[i], bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(anchor="w",
-                                                                                                        padx=15,
-                                                                                                        pady=15)
-            tk.Label(card_1, text="📊 [Biểu đồ giả lập]", bg="white", fg="#CBD5E0", font=("Arial", 10)).pack(expand=True)
 
     # THẺ 3
     def lich_va_thong_bao(self, ds_lich, ds_tin):

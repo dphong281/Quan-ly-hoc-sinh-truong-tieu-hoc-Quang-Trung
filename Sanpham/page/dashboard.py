@@ -10,7 +10,6 @@ from Sanpham.page.qlhs import QLHSController
 from Sanpham.page.diemso import DiemSoController
 from Sanpham.page.caidat import CaiDatPage
 
-
 class DashboardPage:
     def __init__(self, master, app_manager, username):
         self.master = master
@@ -20,8 +19,6 @@ class DashboardPage:
         self.su_kien_giao_dien()
         self.trang_chu()
 
-
-    # CHUYỂN TRANG
     def su_kien_giao_dien(self):
         buttons = self.view.menu_buttons
 
@@ -32,7 +29,6 @@ class DashboardPage:
         buttons["Đánh Giá"].config(command=self.danh_gia)
         buttons["Cài Đặt"].config(command=self.cai_dat)
         self.view.btn_logout.config(command=self.logout)
-
 
     def clear(self):
         for widget in self.view.change.winfo_children():
@@ -50,8 +46,7 @@ class DashboardPage:
                 reader = csv.DictReader(f)
                 for row in reader:
                     ma = (row.get("ma_hs") or "").strip()
-                    if not ma:
-                        continue
+                    if not ma: continue
                     diem_dict[ma] = (row.get("tb_ca_nam") or "").strip()
 
         ds_xep_hang = []
@@ -63,16 +58,13 @@ class DashboardPage:
                     ma_hs = clean.get("ma_hs", "")
                     ho_ten = clean.get("ho_ten", "")
                     lop = clean.get("lop", "")
-                    if not ma_hs or not ho_ten:
-                        continue
+                    if not ma_hs or not ho_ten: continue
 
                     tb_raw = diem_dict.get(ma_hs, "")
-                    if not tb_raw:
-                        continue
+                    if not tb_raw: continue
                     try:
                         diem_so = float(tb_raw.replace(",", "."))
-                    except ValueError:
-                        continue
+                    except ValueError: continue
 
                     ds_xep_hang.append((ho_ten, lop, tb_raw, diem_so))
 
@@ -83,25 +75,21 @@ class DashboardPage:
         self.clear()
         self.view.khung_trang_chu()
 
-        # LOGIC: Đếm số lượng học sinh thực tế từ cơ sở dữ liệu CSV
         tong_hs = 0
         current_dir = os.path.dirname(os.path.abspath(__file__))
         db_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
 
-
         with open(db_path, mode="r", encoding="utf-8") as f:
-                reader = csv.reader(f)
-                tong_hs = len(list(reader)) - 1
-
+            reader = csv.reader(f)
+            tong_hs = len(list(reader)) - 1
 
         data_thong_ke = [
-            ("Tổng học sinh", f"{tong_hs}", "#4C51BF", "👥"),
-            ("Học sinh mới", "25", "#48BB78", "📈"),
-            ("Tổng giáo viên", "85", "#ECC94B", "👨‍🏫")
+            ("Tổng học sinh", f"{tong_hs}", "#4C51BF",""),
+            ("Học sinh mới", "25", "#48BB78",""),
+            ("Tổng giáo viên", "15", "#ECC94B","")
         ]
         self.view.the_thong_ke(data_thong_ke)
 
-        self.view.the_bieu_do(["Phân loại học sinh", "Tình hình vắng học"])
 
         ds_lich = [
             ("Lớp Học Kỳ 1 - 1A1", "09:00 - 13:00"),
@@ -114,40 +102,31 @@ class DashboardPage:
         ]
         self.view.lich_va_thong_bao(ds_lich, ds_tin)
 
-        # LOGIC: Top học sinh xuất sắc theo TB cả năm từ diemso.csv (ghép ma_hs với hocsinh.csv)
         ds_vinh_danh = self.lay_hoc_sinh_xuat_sac()
         self.view.vinh_danh(ds_vinh_danh)
 
-
-    # PAGE QLHS
     def hoc_sinh(self):
         self.clear()
         QLHSController(self.view.change)
 
-    # ĐÁNH GIÁ
     def danh_gia(self):
         self.clear()
         DanhGiaView(self.view.change)
 
-    #PAGE TÀI CHÍNH
     def tai_chinh(self):
         self.clear()
         trang_tc = TaiChinh(self.view.change)
         trang_tc.pack(fill="both", expand=True)
 
-    # NÚT LOGOUT
+    def cai_dat(self):
+        self.clear()
+        CaiDatPage(self.view.change, self.view.username)
+
+    def diem_so(self):
+        self.clear()
+        DiemSoController(self.view.change)
+
     def logout(self):
         if messagebox.askyesno("Xác nhận", "Bạn có muốn đăng xuất?"):
             if hasattr(self.app_manager, 'show_login'):
                 self.app_manager.show_login()
-
-    # PAGE SETTING
-    def cai_dat(self):
-        self.clear()
-        trang_cd = CaiDatPage(self.view.change, self.view.username)
-        trang_cd.pack(fill="both", expand=True)
-
-    # PAGE DIỂM SỐ
-    def diem_so(self):
-        self.clear()
-        trang_ds = DiemSoController(self.view.change)

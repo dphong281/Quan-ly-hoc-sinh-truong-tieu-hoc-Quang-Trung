@@ -1,10 +1,11 @@
 import tkinter as tk
-import Sanpham.page.login as LoginLogic
 import tkinter.messagebox as messagebox
 from PIL import Image, ImageTk
 
+from Sanpham.page.login import LoginLogic
 
-class LoginPage:
+
+class LoginView:
     def __init__(self, master, app_manager):
         self.master = master
         self.app_manager = app_manager
@@ -44,10 +45,7 @@ class LoginPage:
 
 
         # USERNAME
-        tk.Label(
-            self.frame_login, text="Username",
-            bg="white", fg="#666666", font=("Arial", 10)
-        ).pack(fill="x", padx=40)
+        tk.Label(self.frame_login, text="Username", bg="white", fg="#666666", font=("Arial", 10)).pack(fill="x", padx=40)
 
         self.entry_user = tk.Entry(
             self.frame_login, bg="#F0F0F0", font=("Arial", 12),
@@ -57,10 +55,7 @@ class LoginPage:
 
 
         # PASSWORD
-        tk.Label(
-            self.frame_login, text="Password",
-            bg="white", fg="#666666", font=("Arial", 10)
-        ).pack(fill="x", padx=40)
+        tk.Label(self.frame_login, text="Password", bg="white", fg="#666666", font=("Arial", 10)).pack(fill="x", padx=40)
 
         self.entry_pass = tk.Entry(
             self.frame_login, bg="#F0F0F0", font=("Arial", 13),

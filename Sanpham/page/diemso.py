@@ -13,6 +13,7 @@ class DiemSoController:
 
         current_dir = os.path.dirname(__file__)
         db_dir = os.path.join(os.path.dirname(current_dir), "database")
+
         self.hs_path = os.path.join(db_dir, "hocsinh.csv")
         self.diem_path = os.path.join(db_dir, "diemso.csv")
 
@@ -31,8 +32,7 @@ class DiemSoController:
             reader = csv.DictReader(f)
             for row in reader:
                 ma = (row.get("ma_hs") or "").strip()
-                if not ma:
-                    continue
+                if not ma: continue
                 diem_dict[ma] = {
                     "giua_ky": (row.get("giua_ky") or "").strip(),
                     "cuoi_ky": (row.get("cuoi_ky") or "").strip(),
@@ -64,8 +64,7 @@ class DiemSoController:
                 clean = {k.strip(): (v.strip() if v else "") for k, v in row.items() if k}
                 ma_hs = clean.get("ma_hs", "")
                 ho_ten = clean.get("ho_ten", "")
-                if not ma_hs or not ho_ten:
-                    continue
+                if not ma_hs or not ho_ten: continue
                 stt_raw = str(clean.get("stt", ""))
                 stt = stt_raw.split(".")[0] if "." in stt_raw else stt_raw
                 ds.append({
@@ -85,29 +84,20 @@ class DiemSoController:
             ma = hs["ma_hs"]
             diem = diem_dict.get(ma, {})
             self.view.tree.insert("", "end", values=(
-                hs["stt"],
-                hs["ho_ten"],
-                ma,
-                hs["lop"],
-                diem.get("giua_ky", ""),
-                diem.get("cuoi_ky", ""),
-                diem.get("tb_ca_nam", ""),
+                hs["stt"], hs["ho_ten"], ma, hs["lop"],
+                diem.get("giua_ky", ""), diem.get("cuoi_ky", ""), diem.get("tb_ca_nam", ""),
             ))
 
     def tim_kiem(self):
         query = self.view.search_entry.get().lower()
-        if query == "nhập tên, lớp hoặc mã hs...":
-            return
+        if query == "nhập tên, lớp hoặc mã hs...": return
 
         self.tai_du_lieu()
         if query:
             for item in self.view.tree.get_children():
                 v = self.view.tree.item(item)["values"]
-                if (
-                    query not in str(v[1]).lower()
-                    and query not in str(v[2]).lower()
-                    and query not in str(v[3]).lower()
-                ):
+                if (query not in str(v[1]).lower() and query not in str(v[2]).lower() and query not in str(
+                        v[3]).lower()):
                     self.view.tree.delete(item)
 
     def kiem_tra_diem(self, text):
@@ -115,8 +105,7 @@ class DiemSoController:
             diem = float(text.replace(",", "."))
         except ValueError:
             return None
-        if diem < 0 or diem > 10:
-            return None
+        if diem < 0 or diem > 10: return None
         return round(diem, 1)
 
     def sua_diem_popup(self):
@@ -126,11 +115,8 @@ class DiemSoController:
             return
 
         values = self.view.tree.item(selected[0])["values"]
-        ho_ten = values[1]
-        ma_hs = values[2]
-        lop = values[3]
-        giua_cu = str(values[4]) if len(values) > 4 else ""
-        cuoi_cu = str(values[5]) if len(values) > 5 else ""
+        ho_ten, ma_hs, lop = values[1], values[2], values[3]
+        giua_cu, cuoi_cu = str(values[4]) if len(values) > 4 else "", str(values[5]) if len(values) > 5 else ""
 
         pop = tk.Toplevel(self.parent)
         pop.title("Nhập điểm học sinh")
@@ -138,7 +124,8 @@ class DiemSoController:
         pop.grab_set()
 
         tk.Label(pop, text=f"Học sinh: {ho_ten}", font=("Arial", 11, "bold")).pack(pady=(15, 5))
-        tk.Label(pop, text=f"Mã HS: {ma_hs}  |  Lớp: {lop}", font=("Arial", 10)).pack(pady=(0, 15))
+        tk.Label(pop, text=f"Mã HS: {ma_hs}  |  Lớp: {lop}", font=("Arial", 10)).pack(
+            pady=(0, 15))
 
         tk.Label(pop, text="Điểm giữa kỳ (0 - 10):", font=("Arial", 10)).pack()
         ent_giua = tk.Entry(pop, font=("Arial", 11), width=15)
@@ -188,7 +175,5 @@ class DiemSoController:
             self.tai_du_lieu()
 
         pop.bind("<Return>", lambda e: luu_diem())
-        tk.Button(
-            pop, text="Lưu điểm", bg=self.color_navy, fg="white",
-            font=("Arial", 10, "bold"), command=luu_diem, pady=8, padx=20,
-        ).pack(pady=10)
+        tk.Button(pop, text="Lưu điểm", bg=self.color_navy, fg="white", font=("Arial", 10, "bold"),
+                  command=luu_diem, pady=8, padx=20).pack(pady=10)

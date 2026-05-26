@@ -37,8 +37,8 @@ class QLHSView:
 
         # Sự kiện tìm kiếm gọi sang controller
         self.search_entry.bind("<FocusIn>", lambda e: self.search_entry.delete(0, 'end') if self.search_entry.get() == "Nhập tên, lớp hoặc mã HS..." else None)
-        self.search_entry.bind("<KeyRelease>", lambda e: self.controller.search_data())
-        self.search_entry.bind("<Return>", lambda e: self.controller.search_data())
+        self.search_entry.bind("<KeyRelease>", lambda e: self.controller.tim_kiem())
+        self.search_entry.bind("<Return>", lambda e: self.controller.tim_kiem())
 
         # --- BÊN PHẢI TOOLBAR: Đẩy toàn bộ nút sửa xóa lên đây ---
         right_toolbar = tk.Frame(toolbar, bg="#f5f6fa")
@@ -46,17 +46,17 @@ class QLHSView:
 
         # Nút Xóa (Màu đỏ)
         btn_delete = tk.Button(right_toolbar, text="🗑️ Xóa", bg="#e74a3b", fg="white",
-                               font=("Arial", 9, "bold"), command=self.controller.delete_student, padx=15, bd=0, cursor="hand2")
+                               font=("Arial", 9, "bold"), command=self.controller.xoa, padx=15, bd=0, cursor="hand2")
         btn_delete.pack(side="right", padx=5)
 
         # Nút Sửa (Màu cam/vàng)
         btn_edit = tk.Button(right_toolbar, text="✏️ Sửa", bg="#f6c23e", fg="white",
-                             font=("Arial", 9, "bold"), command=self.controller.edit_student_popup, padx=15, bd=0, cursor="hand2")
+                             font=("Arial", 9, "bold"), command=self.controller.sua, padx=15, bd=0, cursor="hand2")
         btn_edit.pack(side="right", padx=5)
 
         # Nút Thêm mới (Màu xanh lá)
         btn_add = tk.Button(right_toolbar, text="➕ Thêm mới", bg="#1cc88a", fg="white",
-                            font=("Arial", 9, "bold"), command=self.controller.add_student_popup, padx=15, bd=0, cursor="hand2")
+                            font=("Arial", 9, "bold"), command=self.controller.them, padx=15, bd=0, cursor="hand2")
         btn_add.pack(side="right", padx=5)
 
         # Frame chứa bảng dữ liệu Treeview
@@ -80,7 +80,7 @@ class QLHSView:
         self.tree.column("lop", width=120, anchor="center")
 
         # Bind phím Delete nhanh trên bàn phím
-        self.tree.bind("<Delete>", lambda e: self.controller.delete_student())
+        self.tree.bind("<Delete>", lambda e: self.controller.xoa())
 
         # Thanh cuộn dọc
         sb = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
