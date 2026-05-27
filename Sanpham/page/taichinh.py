@@ -170,3 +170,4 @@ class TaiChinh(tk.Frame):
                 writer.writerows(data)
         except Exception as e:
             print(f"Lỗi ghi file: {e}")
+            
