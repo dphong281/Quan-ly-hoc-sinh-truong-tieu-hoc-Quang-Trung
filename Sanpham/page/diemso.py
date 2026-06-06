@@ -44,7 +44,8 @@ class DiemSoController:
         with open(self.diem_path, mode="w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=["ma_hs", "giua_ky", "cuoi_ky", "tb_ca_nam"])
             writer.writeheader()
-            for ma_hs in sorted(diem_dict.keys()):
+
+            for ma_hs in sorted(diem_dict.keys(), key=str):
                 row = diem_dict[ma_hs]
                 writer.writerow({
                     "ma_hs": ma_hs,
