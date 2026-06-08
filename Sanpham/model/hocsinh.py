@@ -1,5 +1,6 @@
 import csv
 import os
+import pandas as pd
 
 
 class HocSinhModel:
@@ -61,3 +62,36 @@ class HocSinhModel:
             writer = csv.DictWriter(f, fieldnames=self.fields)
             writer.writeheader()
             writer.writerows(all_students)
+
+    def export_to_excel(self, file_path):
+        data = self.list()["data"]
+        df = pd.DataFrame(data)
+        df.to_excel(file_path, index=False)
+
+    def import_from_excel(self, file_path):
+        """Nhập dữ liệu từ Excel và ghi đè hoặc bổ sung vào CSV"""
+        try:
+            # Đọc file Excel
+            df = pd.read_excel(file_path)
+
+            # Đảm bảo các cột trong Excel khớp với fields của bạn
+            # Bạn có thể yêu cầu file Excel phải có đúng cột: stt, ho_ten, ma_hs, lop
+            new_data = df.to_dict(orient='records')
+
+            # Xử lý làm sạch dữ liệu trước khi lưu
+            cleaned_data = []
+            for row in new_data:
+                # Ép kiểu và xóa khoảng trắng thừa
+                clean_row = {k.strip(): str(v).strip() for k, v in row.items()}
+                cleaned_data.append(clean_row)
+
+            # Ghi đè vào file CSV hiện tại
+            with open(self.csv_path, mode='w', encoding='utf-8', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=self.fields)
+                writer.writeheader()
+                writer.writerows(cleaned_data)
+
+            return True
+        except Exception as e:
+            print(f"Lỗi khi import Excel: {e}")
+            return False

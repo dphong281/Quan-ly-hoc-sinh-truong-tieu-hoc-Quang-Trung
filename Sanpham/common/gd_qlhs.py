@@ -6,7 +6,7 @@ class QLHSView:
     def __init__(self, parent, controller):
         self.master = parent
         self.controller = controller
-        self.color_navy = "#1e376d"
+        self.color_navy = "#3cb3de"
 
         self.view()
 
@@ -17,7 +17,7 @@ class QLHSView:
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Tiêu đề trang
-        title_label = tk.Label(self.main_frame, text="📚 QUẢN LÝ HỌC SINH",
+        title_label = tk.Label(self.main_frame, text="QUẢN LÝ HỌC SINH",
                                font=("Arial", 16, "bold"), fg=self.color_navy, bg="#f5f6fa")
         title_label.pack(anchor="w", pady=(0, 15))
 
@@ -59,6 +59,16 @@ class QLHSView:
                             font=("Arial", 9, "bold"), command=self.controller.them, padx=15, bd=0, cursor="hand2")
         btn_add.pack(side="right", padx=5)
 
+
+        btn_import= tk.Button(right_toolbar, text="Nhập file", bg="green", fg="white",
+                            font=("Arial", 9, "bold"), command=self.controller.import_data, padx=15, bd=0, cursor="hand2")
+        btn_import.pack(side="right", padx=5)
+
+
+        btn_export = tk.Button(right_toolbar, text="Xuất file", bg="blue", fg="white",
+                            font=("Arial", 9, "bold"), command=self.controller.export_data, padx=15, bd=0, cursor="hand2")
+        btn_export.pack(side="right", padx=5)
+
         # Frame chứa bảng dữ liệu Treeview
         tree_frame = tk.Frame(self.main_frame, bg="white")
         # QUAN TRỌNG: Cần expand=True để chiếm trọn không gian trống giữa toolbar và status_label
@@ -88,7 +98,3 @@ class QLHSView:
 
         self.tree.pack(side="left", fill="both", expand=True)
         sb.pack(side="right", fill="y")
-
-        # Thanh trạng thái Status bar dưới cùng
-        self.status_label = tk.Label(self.main_frame, text="Sẵn sàng", relief="sunken", anchor="w")
-        self.status_label.pack(side="bottom", fill="x", pady=(10, 0))

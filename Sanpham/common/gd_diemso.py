@@ -78,5 +78,17 @@ class DiemSoView:
         self.tree.pack(side="left", fill="both", expand=True)
         sb.pack(side="right", fill="y")
 
-        self.status_label = tk.Label(self.main_frame, text="Sẵn sàng", relief="sunken", anchor="w")
-        self.status_label.pack(side="bottom", fill="x", pady=(10, 0))
+        # THÊM ĐOẠN NÀY VÀO:
+        btn_import = tk.Button(
+            right_toolbar, text="📥 Nhập Excel", bg="#28a745", fg="white",
+            font=("Arial", 9, "bold"), command=self.controller.import_data,
+            padx=15, bd=0, cursor="hand2"
+        )
+        btn_import.pack(side="right", padx=5)
+
+        btn_export = tk.Button(
+            right_toolbar, text="📤 Xuất Excel", bg="#007bff", fg="white",
+            font=("Arial", 9, "bold"), command=self.controller.export_data,
+            padx=15, bd=0, cursor="hand2"
+        )
+        btn_export.pack(side="right", padx=5)

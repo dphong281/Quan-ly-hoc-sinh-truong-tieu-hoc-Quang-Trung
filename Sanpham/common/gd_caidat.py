@@ -77,6 +77,21 @@ class CaiDatView:
         )
         self.menu_buttons["Bảo mật"].pack(fill="x")
 
+
+        self.menu_buttons["Giới thiệu"] = tk.Button(
+            self.left_menu,
+            text="Giới thiệu",
+            font=("Arial", 10, "bold"),
+            bg="white",
+            fg="#4a5568",
+            bd=0,
+            anchor="w",
+            padx=15,
+            pady=12,
+            cursor="hand2",
+        )
+        self.menu_buttons["Giới thiệu"].pack(fill="x")
+
     # CONTENT (BODY)
     def noi_dung_phai(self):
         self.right_content = tk.Frame(
@@ -89,6 +104,7 @@ class CaiDatView:
 
         self.khung_he_thong = tk.Frame(self.right_content, bg="white")
         self.khung_bao_mat = tk.Frame(self.right_content, bg="white")
+        self.khung_about = tk.Frame(self.right_content, bg="white")
 
         self.khung_he_thong.pack(fill="both", expand=True)
 
@@ -286,3 +302,13 @@ class CaiDatView:
             pady=8,
         )
         self.btn_change.pack(anchor="w", padx=200, pady=15)
+
+        # KHUNG ABOUT
+        tk.Label(self.khung_about,
+                 text="GIỚI THIỆU PHẦN MỀM",
+                 font=("Arial", 14, "bold"),
+                 bg="white"
+                 ).pack(anchor="w", padx=20, pady=(15,5))
+        tk.Label(self.khung_about,
+                 text="Phần mềm Quản lý Học sinh trường Tiểu học Quang Trung v1.0\nNhóm phát triển: Nhóm 6\nLiên hệ: support@example.com",
+                 font=("Arial", 11), bg="white", justify="center").pack(pady=10)

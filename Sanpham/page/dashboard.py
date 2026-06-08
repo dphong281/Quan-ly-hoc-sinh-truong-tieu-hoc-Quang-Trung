@@ -86,7 +86,6 @@ class DashboardPage:
         data_thong_ke = [
             ("Tổng học sinh", f"{tong_hs}", "#4C51BF",""),
             ("Học sinh mới", "25", "#48BB78",""),
-            ("Tổng giáo viên", "15", "#ECC94B","")
         ]
         self.view.the_thong_ke(data_thong_ke)
 
