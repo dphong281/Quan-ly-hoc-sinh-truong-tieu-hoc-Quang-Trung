@@ -17,28 +17,21 @@ class CaiDatPage(tk.Frame):
 
 
     def gan_su_kien_giao_dien(self):
-        self.view.menu_buttons["Hệ thống"].config(command=self.tab_he_thong)
-        self.view.menu_buttons["Bảo mật"].config(command=self.tab_bao_mat)
-        self.view.menu_buttons["Giới thiệu"].config(command=self.tab_about)
+        self.view.menu_buttons["Hệ thống"].configure(command=self.tab_he_thong)
+        self.view.menu_buttons["Bảo mật"].configure(command=self.tab_bao_mat)
+        self.view.menu_buttons["Giới thiệu"].configure(command=self.tab_about)
 
-        self.view.btn_save.config(command=self.luu_thong_tin)
-        self.view.btn_change.config(command=self.doi_mat_khau)
-
+        self.view.btn_save.configure(command=self.luu_thong_tin)
+        self.view.btn_change.configure(command=self.doi_mat_khau)
 
     def tab_he_thong(self):
-        self.view.khung_bao_mat.pack_forget()
-        self.view.khung_about.pack_forget()
-        self.view.khung_he_thong.pack(fill="both", expand=True)
+        self.view.khung_he_thong.tkraise()
 
     def tab_bao_mat(self):
-        self.view.khung_he_thong.pack_forget()
-        self.view.khung_about.pack_forget()
-        self.view.khung_bao_mat.pack(fill="both", expand=True)
+        self.view.khung_bao_mat.tkraise()
 
     def tab_about(self):
-        self.view.khung_he_thong.pack_forget()
-        self.view.khung_bao_mat.pack_forget()
-        self.view.khung_about.pack(fill="both", expand=True)
+        self.view.khung_about.tkraise()
 
     def luu_thong_tin(self):
         ho_ten = self.view.ent_ho_ten.get().strip()

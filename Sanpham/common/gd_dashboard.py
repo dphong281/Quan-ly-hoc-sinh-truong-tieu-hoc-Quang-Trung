@@ -1,179 +1,153 @@
-import tkinter as tk
-from PIL import Image, ImageTk
-from Sanpham.common.ef_dashboard import UIEffects
+import customtkinter as ctk
+from PIL import Image
 
 
 class DashboardView:
     def __init__(self, master, username):
         self.master = master
         self.username = username
+        self.master.configure(fg_color="#ebebeb")
 
-        self.master.configure(bg="#ebebeb")
+        # Cấu hình grid tổng thể: Cột 0 (sidebar), Cột 1 (nội dung)
+        # Hàng 0 chiếm toàn bộ chiều dọc
+        self.master.grid_columnconfigure(1, weight=1)
+        self.master.grid_rowconfigure(0, weight=1)
 
         self.gd_sidebar()
         self.gd_main_content()
         self.mc_header()
         self.mc_body()
 
-
-    # PHẦN TRÁI
     def gd_sidebar(self):
-        self.sidebar = tk.Frame(self.master, bg="#0d62b8", width=250)
-        self.sidebar.pack(side="left", fill="y")
+        # Sử dụng grid với sticky="nsew" để phủ kín chiều dọc
+        self.sidebar = ctk.CTkFrame(self.master, fg_color="#0d62b8", width=250, corner_radius=0)
+        self.sidebar.grid(row=0, column=0, sticky="nsew")
         self.sidebar.pack_propagate(False)
 
         try:
             img_side = Image.open("assets/logo.png")
-            img_side = img_side.resize((190, 120), Image.LANCZOS)
-            self.photo_side = ImageTk.PhotoImage(img_side)
-            self.lbl_logo_side = tk.Label(self.sidebar, image=self.photo_side, bg="#0d62b8")
-            self.lbl_logo_side.pack(pady=25)
+            self.photo_side = ctk.CTkImage(light_image=img_side, dark_image=img_side, size=(190, 120))
+            ctk.CTkLabel(self.sidebar, image=self.photo_side, text="", fg_color="#0d62b8").pack(pady=25)
         except:
-            tk.Label(self.sidebar, text="LOGO SCHOOL", fg="white", bg="#0d62b8", font=("Arial", 16, "bold")).pack(
-                pady=40)
+            ctk.CTkLabel(self.sidebar, text="LOGO SCHOOL", text_color="white", fg_color="#0d62b8",
+                         font=("Arial", 16, "bold")).pack(pady=40)
 
-        # DANH SÁCH BTN_PAGES
         self.menu_buttons = {}
-        menu_items = ["Trang Chủ", "Học Sinh", "Điểm Số", "Tài Chính", "Đánh Giá", "Cài Đặt"]
-
-        for item in menu_items:
-            btn = tk.Button(
-                self.sidebar,
-                text=f"  {item}", font=("Arial", 12, "bold"),
-                fg="white", bg="#0d62b8", bd=0,
-                anchor="w", cursor="hand2",
-                activebackground="#0a4d91", activeforeground="white"
-            )
-            btn.pack(fill="x", pady=2, padx=10, ipady=8)
-
-
-            # GỌI HÀM HU NÚT
-            UIEffects.apply_button_hover(btn, normal_bg="#0d62b8", hover_bg="#0a4d91")
+        for item in ["Trang Chủ", "Học Sinh", "Điểm Số", "Giáo Viên", "Tài Chính", "Đánh Giá", "Cài Đặt"]:
+            btn = ctk.CTkButton(self.sidebar, text=f"  {item}", font=("Arial", 12, "bold"),
+                                fg_color="#0d62b8", hover_color="#0a4d91", text_color="white",
+                                corner_radius=0, anchor="w", height=40)
+            btn.pack(fill="x", pady=2, padx=10)
             self.menu_buttons[item] = btn
 
+        self.btn_logout = ctk.CTkButton(self.sidebar, text="  Đăng xuất", fg_color="#0d62b8",
+                                        hover_color="#9B2C2C", text_color="#FEB2B2", font=("Arial", 11, "bold"),
+                                        corner_radius=0, anchor="w", height=40)
+        self.btn_logout.pack(side="bottom", fill="x", pady=20, padx=10)
 
-        # NÚT LOGOUT
-        self.btn_logout = tk.Button(
-            self.sidebar,
-            text="  Đăng xuất",
-            fg="#FEB2B2",
-            bg="#0d62b8",
-            font=("Arial", 11, "bold"),
-            bd=0, anchor="w",
-            cursor="hand2"
-        )
-        self.btn_logout.pack(side="bottom", fill="x", pady=20, padx=10, ipady=8)
-
-
-    # PHẦN PHẢI
     def gd_main_content(self):
-        self.main_area = tk.Frame(self.master, bg="#ebebeb")
-        self.main_area.pack(side="right", fill="both", expand=True)
+        # Khu vực nội dung chính nằm ở cột 1, giãn theo cửa sổ
+        self.main_area = ctk.CTkFrame(self.master, fg_color="#ebebeb", corner_radius=0)
+        self.main_area.grid(row=0, column=1, sticky="nsew")
 
-    # HEADER
+        # Cấu hình grid cho main_area: Header ở hàng 0, Body ở hàng 1
+        self.main_area.grid_rowconfigure(1, weight=1)
+        self.main_area.grid_columnconfigure(0, weight=1)
+
     def mc_header(self):
-        self.header = tk.Frame(self.main_area, bg="white", height=70)
-        self.header.pack(fill="x", side="top")
+        self.header = ctk.CTkFrame(self.main_area, fg_color="white", height=60, corner_radius=0)
+        self.header.grid(row=0, column=0, sticky="ew")  # Giãn ngang
         self.header.pack_propagate(False)
 
-        # TRÁI HEADER
-        phan_trai = tk.Frame(self.header, bg="white")
-        phan_trai.pack(side="left", padx=20, pady=10)
+        ctk.CTkLabel(self.header, text=f"Chào mừng, {self.username}!", text_color="#2D3748",
+                     font=("Arial", 14, "bold")).pack(side="left", padx=20)
 
-        tk.Label(phan_trai, text=f"Chào mừng, {self.username}!", bg="white", fg="#2D3748",
-                 font=("Arial", 14, "bold")).pack(anchor="w")
+        self.btn_guide = ctk.CTkButton(self.header, text="📖 Hướng dẫn", width=120, height=30,
+                                       fg_color="#65C1D9", hover_color="#52A9C1", text_color="white")
+        self.btn_guide.pack(side="right", padx=20)
 
-
-    # BODY
     def mc_body(self):
-        self.change = tk.Frame(self.main_area, bg="#ebebeb")
-        self.change.pack(fill="both", expand=True)
+        # Body nằm ở hàng 1, sticky="nsew" để phủ kín không gian còn lại
+        self.change = ctk.CTkFrame(self.main_area, fg_color="#ebebeb", corner_radius=0)
+        self.change.grid(row=1, column=0, sticky="nsew")
 
-
-    # KHUNG NỘI DUNG
     def khung_trang_chu(self):
-        self.noidung = tk.Frame(self.change, bg="#ebebeb")
+        for widget in self.change.winfo_children(): widget.destroy()
+        self.noidung = ctk.CTkFrame(self.change, fg_color="#ebebeb", corner_radius=0)
         self.noidung.pack(fill="both", expand=True, padx=30, pady=20)
-        self.noidung.columnconfigure(0, weight=7)
-        self.noidung.columnconfigure(1, weight=3)
-        self.noidung.rowconfigure(0, weight=1)
 
-        # NỘI DUNG TRÁI
-        self.phan_trai = tk.Frame(self.noidung, bg="#ebebeb")
+        # Cấu hình grid cho noidung
+        self.noidung.grid_columnconfigure(0, weight=7)
+        self.noidung.grid_columnconfigure(1, weight=3)
+
+        self.phan_trai = ctk.CTkFrame(self.noidung, fg_color="#ebebeb", corner_radius=0)
         self.phan_trai.grid(row=0, column=0, sticky="nsew", padx=(0, 20))
 
-        # NỘI DUNG PHẢI
-        self.phan_phai = tk.Frame(self.noidung, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
+        # Cấu hình grid cho phan_trai để các ô con xếp hàng dọc đều nhau
+        self.phan_trai.grid_columnconfigure(0, weight=1)
+
+        self.phan_phai = ctk.CTkFrame(self.noidung, fg_color="white", corner_radius=10, border_width=1,
+                                      border_color="#E2E8F0")
         self.phan_phai.grid(row=0, column=1, sticky="nsew")
 
-
-    # THẺ 1
     def the_thong_ke(self, data_list):
-        the_1 = tk.Frame(self.phan_trai, bg="#ebebeb")
+        the_1 = ctk.CTkFrame(self.phan_trai, fg_color="#ebebeb", corner_radius=0)
         the_1.pack(fill="x", pady=(0, 20))
-        the_1.columnconfigure((0, 1, 2), weight=1)
 
         for i, (title, value, color, icon) in enumerate(data_list):
-            card = tk.Frame(the_1, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
-            card.grid(row=0, column=i, sticky="nsew", padx=(0, 15))
-            card.config(height=100)
-            card.grid_propagate(False)
+            card = ctk.CTkFrame(the_1, fg_color="white", corner_radius=8, border_width=1, border_color="#E2E8F0")
+            card.pack(side="left", fill="x", expand=True, padx=(0, 15 if i < len(data_list) - 1 else 0))
 
-            tk.Frame(card, bg=color, height=4).pack(side="bottom", fill="x")
-            content_f = tk.Frame(card, bg="white")
-            content_f.pack(fill="both", expand=True, padx=15, pady=15)
+            # Khung chứa text để căn giữa
+            ctk.CTkFrame(card, fg_color=color, height=4, corner_radius=0).pack(side="bottom", fill="x")
 
-            tk.Label(content_f, text=icon, font=("Arial", 15), bg="white", fg=color).pack(side="left", padx=(0, 10))
-            text_f = tk.Frame(content_f, bg="white")
-            text_f.pack(side="left", fill="y")
+            # Dùng anchor="center" để căn giữa theo chiều ngang
+            ctk.CTkLabel(card, text=title, fg_color="white", text_color="#718096",
+                         font=("Arial", 9, "bold")).pack(pady=(15, 0), anchor="center")
 
-            tk.Label(text_f, text=title, bg="white", fg="#718096", font=("Arial", 9, "bold")).pack(anchor="w")
-            tk.Label(text_f, text=value, bg="white", fg="#2D3748", font=("Arial", 18, "bold")).pack(anchor="w")
+            ctk.CTkLabel(card, text=value, fg_color="white", text_color="#2D3748",
+                         font=("Arial", 18, "bold")).pack(pady=(0, 15), anchor="center")
 
-    # THẺ 3
+    def the_bieu_do(self):
+        self.bieu_do_frame = ctk.CTkFrame(self.phan_trai, fg_color="white", corner_radius=8, border_width=1,
+                                          border_color="#E2E8F0")
+        self.bieu_do_frame.pack(fill="x", pady=(0, 20))
+        ctk.CTkLabel(self.bieu_do_frame, text="Thống kê sĩ số theo lớp", fg_color="white", text_color="#2D3748",
+                     font=("Arial", 11, "bold")).pack(anchor="w", padx=15, pady=10)
+        self.canvas_frame = ctk.CTkFrame(self.bieu_do_frame, fg_color="white", corner_radius=0)
+        self.canvas_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
     def lich_va_thong_bao(self, ds_lich, ds_tin):
-        the_3 = tk.Frame(self.phan_trai, bg="#ebebeb")
+        the_3 = ctk.CTkFrame(self.phan_trai, fg_color="#ebebeb", corner_radius=0)
         the_3.pack(fill="both", expand=True)
-        the_3.columnconfigure((0, 1), weight=1)
-
-        lich_frame = tk.Frame(the_3, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
-        lich_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 15))
-        tk.Label(lich_frame, text="Lịch biểu hôm nay", bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(
-            anchor="w", padx=15, pady=15)
-
+        lich_frame = ctk.CTkFrame(the_3, fg_color="white", corner_radius=8, border_width=1, border_color="#E2E8F0")
+        lich_frame.pack(side="left", fill="both", expand=True, padx=(0, 15))
+        ctk.CTkLabel(lich_frame, text="Lịch biểu hôm nay", fg_color="white", text_color="#2D3748",
+                     font=("Arial", 11, "bold")).pack(anchor="w", padx=15, pady=15)
         for ten, gio in ds_lich:
-            row = tk.Frame(lich_frame, bg="white")
+            row = ctk.CTkFrame(lich_frame, fg_color="white")
             row.pack(fill="x", padx=15, pady=5)
-            tk.Label(row, text=f"• {ten}", bg="white", font=("Arial", 9)).pack(side="left")
-            tk.Label(row, text=gio, bg="white", fg="#718096", font=("Arial", 8)).pack(side="right")
-
-        tb_frame = tk.Frame(the_3, bg="white", highlightthickness=1, highlightbackground="#E2E8F0")
-        tb_frame.grid(row=0, column=1, sticky="nsew")
-        tk.Label(tb_frame, text="Thông báo gần đây", bg="white", fg="#2D3748", font=("Arial", 11, "bold")).pack(
-            anchor="w", padx=15, pady=15)
+            ctk.CTkLabel(row, text=f"• {ten}", fg_color="white", font=("Arial", 9)).pack(side="left")
+            ctk.CTkLabel(row, text=gio, fg_color="white", text_color="#718096", font=("Arial", 8)).pack(side="right")
+        tb_frame = ctk.CTkFrame(the_3, fg_color="white", corner_radius=8, border_width=1, border_color="#E2E8F0")
+        tb_frame.pack(side="left", fill="both", expand=True)
+        ctk.CTkLabel(tb_frame, text="Thông báo gần đây", fg_color="white", text_color="#2D3748",
+                     font=("Arial", 11, "bold")).pack(anchor="w", padx=15, pady=15)
         for tin in ds_tin:
-            tk.Label(tb_frame,
-                     text=f" • {tin}",
-                     bg="white", fg="#4A5568",
-                     font=("Arial", 9),
-                     anchor="w").pack(fill="x", padx=15, pady=4)
+            ctk.CTkLabel(tb_frame, text=f" • {tin}", fg_color="white", text_color="#4A5568", font=("Arial", 9),
+                         anchor="w").pack(fill="x", padx=15, pady=4)
 
-
-    # THẺ 4
     def vinh_danh(self, ds_vinh_danh):
-        tk.Label(self.phan_phai, text="Học sinh xuất sắc nhất tháng", bg="white", fg="#2D3748",
-                 font=("Arial", 12, "bold"), justify="left").pack(anchor="w", padx=20, pady=20)
-
+        ctk.CTkLabel(self.phan_phai, text="Học sinh xuất sắc nhất tháng", fg_color="white", text_color="#2D3748",
+                     font=("Arial", 12, "bold")).pack(anchor="w", padx=20, pady=20)
         for ten, lop, diem in ds_vinh_danh:
-            item = tk.Frame(self.phan_phai, bg="white")
+            item = ctk.CTkFrame(self.phan_phai, fg_color="white")
             item.pack(fill="x", padx=20, pady=10)
-
-            tk.Label(item, text="👤", font=("Arial", 14), bg="#EDF2F7", width=3).pack(side="left")
-            info = tk.Frame(item, bg="white")
+            ctk.CTkLabel(item, text="👤", font=("Arial", 14), fg_color="#EDF2F7", width=30, height=30,
+                         corner_radius=5).pack(side="left")
+            info = ctk.CTkFrame(item, fg_color="white")
             info.pack(side="left", padx=10)
-
-            tk.Label(info, text=ten, bg="white", font=("Arial", 9, "bold")).pack(anchor="w")
-            tk.Label(info, text=lop, bg="white", fg="#718096", font=("Arial", 8)).pack(anchor="w")
-            tk.Label(item, text=diem, bg="white", fg="#48BB78", font=("Arial", 10, "bold")).pack(side="right")
-
-            UIEffects.apply_card_hover(item, normal_bg="white", hover_bg="#F3F4F6")
+            ctk.CTkLabel(info, text=ten, fg_color="white", font=("Arial", 9, "bold")).pack(anchor="w")
+            ctk.CTkLabel(info, text=lop, fg_color="white", text_color="#718096", font=("Arial", 8)).pack(anchor="w")
+            ctk.CTkLabel(item, text=diem, fg_color="white", text_color="#48BB78", font=("Arial", 10, "bold")).pack(
+                side="right")

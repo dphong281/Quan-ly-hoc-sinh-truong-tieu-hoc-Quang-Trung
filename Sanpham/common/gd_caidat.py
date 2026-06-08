@@ -1,314 +1,88 @@
-import tkinter as tk
-from textwrap import fill
-from tkinter import ttk
+import customtkinter as ctk
 
 
 class CaiDatView:
-
     def __init__(self, master, username):
         self.master = master
         self.username = username
 
-        self.master.configure(bg="#f8fafc")
 
         self.header()
         self.than_giao_dien()
         self.menu_trai()
         self.noi_dung_phai()
 
-    # HEADER
     def header(self):
-        header_frame = tk.Frame(self.master, bg="#3cb3de", height=50)
+        header_frame = ctk.CTkFrame(self.master, fg_color="#3cb3de", height=50, corner_radius=0)
         header_frame.pack(fill="x")
-        header_frame.pack_propagate(False)
 
-        tk.Label(
-            header_frame,
-            text="CÀI ĐẶT",
-            font=("Arial", 14, "bold"),
-            fg="white",
-            bg="#3cb3de",
+        ctk.CTkLabel(
+            header_frame, text="CÀI ĐẶT", font=("Arial", 14, "bold"), text_color="white"
         ).pack(side="left", padx=20, pady=12)
 
-    # BODY
     def than_giao_dien(self):
-        self.body_frame = tk.Frame(self.master, bg="#f8fafc")
+        self.body_frame = ctk.CTkFrame(self.master, fg_color="#f8fafc", corner_radius=0)
         self.body_frame.pack(fill="both", expand=True, padx=15, pady=15)
 
-    # SIDEBAR (BODY)
     def menu_trai(self):
-        self.left_menu = tk.Frame(
-            self.body_frame,
-            bg="white",
-            width=200,
-            highlightthickness=1,
-            highlightbackground="#e2e8f0",
+        self.left_menu = ctk.CTkFrame(
+            self.body_frame, fg_color="white", width=200, corner_radius=5, border_width=1, border_color="#e2e8f0"
         )
         self.left_menu.pack(side="left", fill="y", padx=(0, 15))
         self.left_menu.pack_propagate(False)
 
         self.menu_buttons = {}
+        for text in ["Hệ thống", "Bảo mật", "Giới thiệu"]:
+            btn = ctk.CTkButton(
+                self.left_menu, text=text if text != "Hệ thống" else "Hệ thống chung",
+                font=("Arial", 12, "bold"), fg_color="white", text_color="#4a5568",
+                hover_color="#f0f0f0", anchor="w", corner_radius=0
+            )
+            btn.pack(fill="x", pady=5, padx=10)
+            self.menu_buttons[text] = btn
 
-        self.menu_buttons["Hệ thống"] = tk.Button(
-            self.left_menu,
-            text="Hệ thống chung",
-            font=("Arial", 10, "bold"),
-            bg="white",
-            fg="#4a5568",
-            bd=0,
-            anchor="w",
-            padx=15,
-            pady=12,
-            cursor="hand2",
-        )
-        self.menu_buttons["Hệ thống"].pack(fill="x")
-
-        self.menu_buttons["Bảo mật"] = tk.Button(
-            self.left_menu,
-            text="Bảo mật",
-            font=("Arial", 10, "bold"),
-            bg="white",
-            fg="#4a5568",
-            bd=0,
-            anchor="w",
-            padx=15,
-            pady=12,
-            cursor="hand2",
-        )
-        self.menu_buttons["Bảo mật"].pack(fill="x")
-
-
-        self.menu_buttons["Giới thiệu"] = tk.Button(
-            self.left_menu,
-            text="Giới thiệu",
-            font=("Arial", 10, "bold"),
-            bg="white",
-            fg="#4a5568",
-            bd=0,
-            anchor="w",
-            padx=15,
-            pady=12,
-            cursor="hand2",
-        )
-        self.menu_buttons["Giới thiệu"].pack(fill="x")
-
-    # CONTENT (BODY)
     def noi_dung_phai(self):
-        self.right_content = tk.Frame(
-            self.body_frame,
-            bg="white",
-            highlightthickness=1,
-            highlightbackground="#e2e8f0",
+        self.right_content = ctk.CTkFrame(
+            self.body_frame, fg_color="white", corner_radius=5, border_width=1, border_color="#e2e8f0"
         )
         self.right_content.pack(side="left", fill="both", expand=True)
 
-        self.khung_he_thong = tk.Frame(self.right_content, bg="white")
-        self.khung_bao_mat = tk.Frame(self.right_content, bg="white")
-        self.khung_about = tk.Frame(self.right_content, bg="white")
+        self.khung_he_thong = ctk.CTkFrame(self.right_content, fg_color="white")
+        self.khung_bao_mat = ctk.CTkFrame(self.right_content, fg_color="white")
+        self.khung_about = ctk.CTkFrame(self.right_content, fg_color="white")
 
-        self.khung_he_thong.pack(fill="both", expand=True)
+        # Đặt các khung chồng lên nhau
+        for f in [self.khung_he_thong, self.khung_bao_mat, self.khung_about]:
+            f.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        # KHUNG HỆ THỐNG (CONTENT)
-        tk.Label(
-            self.khung_he_thong,
-            text="[ THÔNG TIN TÀI KHOẢN ]",
-            font=("Arial", 10, "bold"),
-            fg="#3cb3de",
-            bg="white",
-        ).pack(anchor="w", padx=20, pady=(15, 5))
+        # --- Nội dung Khung Hệ thống ---
+        ctk.CTkLabel(self.khung_he_thong, text="[ THÔNG TIN TÀI KHOẢN ]", text_color="#3cb3de",
+                     font=("Arial", 12, "bold")).pack(anchor="w", padx=20, pady=20)
+        self.ent_ho_ten = self._tao_input(self.khung_he_thong, "Họ và Tên:")
+        self.ent_email = self._tao_input(self.khung_he_thong, "Email:")
+        self.ent_sdt = self._tao_input(self.khung_he_thong, "Số điện thoại:")
+        self.btn_save = ctk.CTkButton(self.khung_he_thong, text="Lưu", fg_color="#3cb3de", width=100)
+        self.btn_save.pack(anchor="w", padx=20, pady=20)
 
-        tk.Frame(self.khung_he_thong, bg="#e2e8f0", height=1).pack(
-            fill="x", padx=20, pady=(0, 10)
-        )
+        # --- Nội dung Khung Bảo mật ---
+        ctk.CTkLabel(self.khung_bao_mat, text="[ BẢO MẬT ]", text_color="#3cb3de", font=("Arial", 12, "bold")).pack(
+            anchor="w", padx=20, pady=20)
+        self.ent_pass = self._tao_input(self.khung_bao_mat, "Mật khẩu:", show="*")
+        self.ent_newpass = self._tao_input(self.khung_bao_mat, "Mật khẩu mới:", show="*")
+        self.ent_renewpass = self._tao_input(self.khung_bao_mat, "Nhập lại mật khẩu:", show="*")
+        self.btn_change = ctk.CTkButton(self.khung_bao_mat, text="Đổi mật khẩu", fg_color="#3cb3de", width=150)
+        self.btn_change.pack(anchor="w", padx=20, pady=20)
 
-        row_user = tk.Frame(self.khung_he_thong, bg="white")
-        row_user.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_user,
-            text="Tên đăng nhập:",
-            font=("Arial", 10),
-            bg="white",
-            width=16,
-            anchor="w",
-        ).pack(side="left")
+        # --- Nội dung Khung Giới thiệu ---
+        ctk.CTkLabel(self.khung_about, text="GIỚI THIỆU", font=("Arial", 14, "bold")).pack(pady=20)
+        ctk.CTkLabel(self.khung_about, text="Phần mềm Quản lý Học sinh v1.0\nNhóm phát triển : Nhóm 6\n Liên hệ: danhphong28011@gmail.com").pack()
 
-        self.lbl_username = tk.Label(
-            row_user,
-            text=self.username,
-            font=("Arial", 10, "bold"),
-            fg="#1a73e8",
-            bg="white",
-        )
-        self.lbl_username.pack(side="left")
+        self.khung_he_thong.tkraise()
 
-        row_hoten = tk.Frame(self.khung_he_thong, bg="white")
-        row_hoten.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_hoten,
-            text="Họ và Tên:",
-            font=("Arial", 10),
-            bg="white",
-            width=16,
-            anchor="w",
-        ).pack(side="left")
-        self.ent_ho_ten = tk.Entry(
-            row_hoten,
-            font=("Arial", 10),
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-            bd=0,
-        )
-        self.ent_ho_ten.insert(0, "")
-        self.ent_ho_ten.pack(side="left", fill="x", expand=True, ipady=3)
-
-        row_email = tk.Frame(self.khung_he_thong, bg="white")
-        row_email.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_email,
-            text="Email:",
-            font=("Arial", 10),
-            bg="white",
-            width=16,
-            anchor="w",
-        ).pack(side="left")
-        self.ent_email = tk.Entry(
-            row_email,
-            font=("Arial", 10),
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-            bd=0,
-        )
-        self.ent_email.insert(0, "")
-        self.ent_email.pack(side="left", fill="x", expand=True, ipady=3)
-
-        row_sdt = tk.Frame(self.khung_he_thong, bg="white")
-        row_sdt.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_sdt,
-            text="Số điện thoại:",
-            font=("Arial", 10),
-            bg="white",
-            width=16,
-            anchor="w",
-        ).pack(side="left")
-        self.ent_sdt = tk.Entry(
-            row_sdt,
-            font=("Arial", 10),
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-            bd=0,
-        )
-        self.ent_sdt.insert(0, "")
-        self.ent_sdt.pack(side="left", fill="x", expand=True, ipady=3)
-
-        self.btn_save = tk.Button(
-            self.khung_he_thong,
-            text="Lưu",
-            font=("Arial", 11, "bold"),
-            bg="#3cb3de",
-            fg="white",
-            bd=0,
-            cursor="hand2",
-            padx=15,
-            pady=8,
-        )
-        self.btn_save.pack(anchor="w", padx=200, pady=15)
-
-        # KHUNG BẢO MẬT (CONTENT)
-        tk.Label(
-            self.khung_bao_mat,
-            text="[ BẢO MẬT ]",
-            font=("Arial", 10, "bold"),
-            fg="#3cb3de",
-            bg="white",
-        ).pack(anchor="w", padx=20, pady=(15, 5))
-
-        tk.Frame(self.khung_bao_mat, bg="#e2e8f0", height=1).pack(
-            fill="x", padx=20, pady=(0, 10)
-        )
-
-        row_pass = tk.Frame(self.khung_bao_mat, bg="white")
-        row_pass.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_pass,
-            text="Mật khẩu:",
-            font=("Arial", 10),
-            bg="white",
-            width=20,
-            anchor="w",
-        ).pack(side="left")
-        self.ent_pass = tk.Entry(
-            row_pass,
-            show="*",
-            font=("Arial", 10),
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-            bd=0,
-        )
-        self.ent_pass.insert(0, "")
-        self.ent_pass.pack(side="left", fill="x", expand=True, ipady=3)
-
-        row_newpass = tk.Frame(self.khung_bao_mat, bg="white")
-        row_newpass.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_newpass,
-            text="Mật khẩu mới:",
-            font=("Arial", 10),
-            bg="white",
-            width=20,
-            anchor="w",
-        ).pack(side="left")
-        self.ent_newpass = tk.Entry(
-            row_newpass,
-            show="*",
-            font=("Arial", 10),
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-            bd=0,
-        )
-        self.ent_newpass.insert(0, "")
-        self.ent_newpass.pack(side="left", fill="x", expand=True, ipady=3)
-
-        row_renewpass = tk.Frame(self.khung_bao_mat, bg="white")
-        row_renewpass.pack(fill="x", padx=20, pady=3)
-        tk.Label(
-            row_renewpass,
-            text="Nhập lại mật khẩu mới:",
-            font=("Arial", 10),
-            bg="white",
-            width=20,
-            anchor="w",
-        ).pack(side="left")
-        self.ent_renewpass = tk.Entry(
-            row_renewpass,
-            show="*",
-            font=("Arial", 10),
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-            bd=0,
-        )
-        self.ent_renewpass.insert(0, "")
-        self.ent_renewpass.pack(side="left", fill="x", expand=True, ipady=3)
-
-        self.btn_change = tk.Button(
-            self.khung_bao_mat,
-            text="Đổi mật khẩu",
-            font=("Arial", 11, "bold"),
-            bg="#3cb3de",
-            fg="white",
-            bd=0,
-            cursor="hand2",
-            padx=15,
-            pady=8,
-        )
-        self.btn_change.pack(anchor="w", padx=200, pady=15)
-
-        # KHUNG ABOUT
-        tk.Label(self.khung_about,
-                 text="GIỚI THIỆU PHẦN MỀM",
-                 font=("Arial", 14, "bold"),
-                 bg="white"
-                 ).pack(anchor="w", padx=20, pady=(15,5))
-        tk.Label(self.khung_about,
-                 text="Phần mềm Quản lý Học sinh trường Tiểu học Quang Trung v1.0\nNhóm phát triển: Nhóm 6\nLiên hệ: support@example.com",
-                 font=("Arial", 11), bg="white", justify="center").pack(pady=10)
+    def _tao_input(self, parent, label, show=""):
+        frame = ctk.CTkFrame(parent, fg_color="transparent")
+        frame.pack(fill="x", padx=20, pady=5)
+        ctk.CTkLabel(frame, text=label, width=150, anchor="w").pack(side="left")
+        entry = ctk.CTkEntry(frame, show=show)
+        entry.pack(side="left", fill="x", expand=True)
+        return entry
