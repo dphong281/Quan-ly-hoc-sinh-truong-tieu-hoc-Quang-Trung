@@ -8,7 +8,7 @@ class TaiChinh(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        self.db_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
+        self.db_path = os.path.join(os.path.dirname(current_dir), "database", "dongtien.csv")
 
         self.setup_ui()
         self.render_data()
