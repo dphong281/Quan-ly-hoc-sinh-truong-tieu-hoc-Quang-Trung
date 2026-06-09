@@ -1,112 +1,129 @@
-import tkinter as tk
-from tkinter import messagebox
+import customtkinter as ctk
+from tkinter import ttk, messagebox
 import csv
 import os
 
 
 class DanhGiaView:
-    def __init__(self, master):
+    def __init__(self, master, app_instance):
         self.master = master
-        self.color_navy = "#1e376d"
+        self.app_instance = app_instance
 
-        
-        current_dir = os.path.dirname(__file__)  
-       
-        self.csv_path = os.path.join(os.path.dirname(current_dir), "database", "hocsinh.csv")
+        # Khởi tạo đường dẫn chính xác tới các file database csv của bạn
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        self.hocsinh_file = os.path.normpath(os.path.join(self.dir_path, "..", "database", "hocsinh.csv"))
+        self.diemso_file = os.path.normpath(os.path.join(self.dir_path, "..", "database", "diemso.csv"))
 
-       
-        if not os.path.exists(self.csv_path):
-            
-            project_root = os.path.dirname(os.path.dirname(current_dir))
-            self.csv_path = os.path.join(project_root, "database", "hocsinh.csv")
+        # --- TIÊU ĐỀ TRANG ---
+        title_label = ctk.CTkLabel(
+            self.master,
+            text="📑 ĐÁNH GIÁ VÀ XẾP LOẠI HỌC SINH",
+            font=ctk.CTkFont(family="Arial", size=20, weight="bold"),
+            text_color="#1A365D"
+        )
+        title_label.pack(anchor="w", padx=25, pady=(20, 10))
 
-        self.build_ui()
+        # --- THANH TÌM KIẾM ---
+        search_frame = ctk.CTkFrame(self.master, fg_color="transparent")
+        search_frame.pack(fill="x", padx=25, pady=10)
 
-    def build_ui(self):
-        # Tiêu đề
-        tk.Label(
-            self.master, text="📋 ĐÁNH GIÁ THEO MÃ HỌC SINH",
-            font=("Arial", 20, "bold"), bg="#f5f6fa", fg=self.color_navy
-        ).pack(pady=(30, 20))
+        self.search_entry = ctk.CTkEntry(
+            search_frame,
+            placeholder_text="Nhập mã học sinh để lọc...",
+            width=280
+        )
+        self.search_entry.pack(side="left", padx=(0, 10))
+        self.search_entry.bind("<Return>", lambda event: self.load_data())
 
-        # Khung nhập liệu
-        form_frame = tk.Frame(self.master, bg="white", bd=1, relief="solid", padx=30, pady=30)
-        form_frame.pack(padx=50, fill="x")
+        btn_search = ctk.CTkButton(search_frame, text="Tìm kiếm", command=self.load_data, width=100)
+        btn_search.pack(side="left", padx=5)
 
-        # 1. Nhập Mã học sinh
-        tk.Label(form_frame, text="Nhập Mã HS:", bg="white", font=("Arial", 11, "bold")).grid(row=0, column=0,
-                                                                                              sticky="w", pady=10)
+        btn_refresh = ctk.CTkButton(search_frame, text="Làm mới", fg_color="gray", command=self.refresh_search,
+                                    width=100)
+        btn_refresh.pack(side="left", padx=5)
 
-        search_frame = tk.Frame(form_frame, bg="white")
-        search_frame.grid(row=0, column=1, padx=20, sticky="w")
+        # --- BẢNG HIỂN THỊ DỮ LIỆU (TREEVIEW) ---
+        table_frame = ctk.CTkFrame(self.master, fg_color="white", corner_radius=8)
+        table_frame.pack(fill="both", expand=True, padx=25, pady=(10, 25))
 
-        self.ent_ma_hs = tk.Entry(search_frame, font=("Arial", 11), width=20, bd=1, relief="solid")
-        self.ent_ma_hs.pack(side="left")
+        columns = ("stt", "ma_hs", "ho_ten", "lop", "tb_ca_nam", "xep_loai")
+        self.tree = ttk.Treeview(table_frame, columns=columns, show="headings")
 
-        btn_check = tk.Button(search_frame, text="Kiểm tra", command=self.search_student, bg=self.color_navy,
-                              fg="white", font=("Arial", 9, "bold"))
-        btn_check.pack(side="left", padx=10)
+        self.tree.heading("stt", text="STT")
+        self.tree.heading("ma_hs", text="Mã Học Sinh")
+        self.tree.heading("ho_ten", text="Họ và Tên")
+        self.tree.heading("lop", text="Lớp")
+        self.tree.heading("tb_ca_nam", text="ĐTB Cả Năm")
+        self.tree.heading("xep_loai", text="Xếp Loại")
 
-        # 2. Hiển thị thông tin tìm thấy (Read-only)
-        tk.Label(form_frame, text="Họ tên:", bg="white", font=("Arial", 11, "bold")).grid(row=1, column=0, sticky="w",
-                                                                                          pady=10)
-        self.lbl_name = tk.Label(form_frame, text="...", bg="white", font=("Arial", 11, "italic"), fg="blue")
-        self.lbl_name.grid(row=1, column=1, padx=20, sticky="w")
+        self.tree.column("stt", width=60, anchor="center")
+        self.tree.column("ma_hs", width=120, anchor="center")
+        self.tree.column("ho_ten", width=220, anchor="w")
+        self.tree.column("lop", width=100, anchor="center")
+        self.tree.column("tb_ca_nam", width=120, anchor="center")
+        self.tree.column("xep_loai", width=160, anchor="center")
 
-        tk.Label(form_frame, text="Lớp:", bg="white", font=("Arial", 11, "bold")).grid(row=2, column=0, sticky="w",
-                                                                                       pady=10)
-        self.lbl_lop = tk.Label(form_frame, text="...", bg="white", font=("Arial", 11, "italic"), fg="blue")
-        self.lbl_lop.grid(row=2, column=1, padx=20, sticky="w")
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
 
-        # 3. Xếp loại
-        tk.Label(form_frame, text="Xếp loại:", bg="white", font=("Arial", 11, "bold")).grid(row=3, column=0, sticky="w",
-                                                                                            pady=10)
-        self.rating_var = tk.StringVar(value="Tốt")
-        radio_frame = tk.Frame(form_frame, bg="white")
-        radio_frame.grid(row=3, column=1, sticky="w", padx=20)
-        for text in ["Tốt", "Khá", "Cần cố gắng"]:
-            tk.Radiobutton(radio_frame, text=text, variable=self.rating_var, value=text, bg="white").pack(side="left",
-                                                                                                          padx=10)
+        self.tree.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+        scrollbar.pack(side="right", fill="y")
 
-        # 4. Nhận xét
-        tk.Label(form_frame, text="Nhận xét:", bg="white", font=("Arial", 11, "bold")).grid(row=4, column=0,
-                                                                                            sticky="nw", pady=10)
-        self.txt_review = tk.Text(form_frame, height=4, width=45, font=("Arial", 11), bd=1, relief="solid")
-        self.txt_review.grid(row=4, column=1, padx=20, pady=10)
+        # Nạp dữ liệu tự động lên bảng ngay khi mở trang
+        self.load_data()
 
-        # 5. Nút lưu
-        tk.Button(
-            form_frame, text="LƯU ĐÁNH GIÁ", bg="#28a745", fg="white",
-            font=("Arial", 11, "bold"), padx=30, pady=10, command=self.save_action
-        ).grid(row=5, column=1, sticky="e", pady=10)
-
-    def search_student(self):
-        ma_nhap = self.ent_ma_hs.get().strip().upper()
-        found = False
-
-        if not os.path.exists(self.csv_path):
-            messagebox.showerror("Lỗi", f"Không tìm thấy file {self.csv_path}")
-            return
-
-        with open(self.csv_path, mode='r', encoding='utf-8') as f:
+    def doc_file_csv(self, file_path):
+        data = []
+        if not os.path.exists(file_path):
+            return data
+        with open(file_path, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             for row in reader:
-               
-                if row['ma_hs '].strip().upper() == ma_nhap:
-                    self.lbl_name.config(text=row['ho_ten '])
-                    self.lbl_lop.config(text=row['lop'])
-                    found = True
-                    break
+                data.append({k.strip(): v.strip() for k, v in row.items() if k})
+        return data
 
-        if not found:
-            self.lbl_name.config(text="Không tìm thấy!")
-            self.lbl_lop.config(text="...")
-            messagebox.showwarning("Thông báo", "Mã học sinh không tồn tại!")
+    def tinh_xep_loai(self, diem_str):
+        try:
+            diem = float(diem_str)
+            if diem >= 8.0:
+                return "Giỏi"
+            elif diem >= 6.5:
+                return "Khá"
+            elif diem >= 5.0:
+                return "Trung bình"
+            else:
+                return "Yếu"
+        except:
+            return "Chưa có điểm"
 
-    def save_action(self):
-        name = self.lbl_name.cget("text")
-        if name == "..." or name == "Không tìm thấy!":
-            messagebox.showwarning("Lỗi", "Vui lòng nhập đúng mã học sinh trước khi lưu!")
-            return
+    def refresh_search(self):
+        self.search_entry.delete(0, 'end')
+        self.load_data()
 
-        messagebox.showinfo("Thành công", f"Đã lưu đánh giá cho học sinh {name}")
+    def load_data(self):
+        # Xóa dữ liệu cũ trên bảng trước khi nạp dữ liệu mới
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        keyword = self.search_entry.get().strip().lower()
+        list_hocsinh = self.doc_file_csv(self.hocsinh_file)
+        list_diemso = self.doc_file_csv(self.diemso_file)
+
+        # Tạo từ điển điểm để map nhanh theo mã học sinh
+        dict_diem = {d.get("ma_hs"): d.get("tb_ca_nam", "0") for d in list_diemso if d.get("ma_hs")}
+
+        stt = 1
+        for hs in list_hocsinh:
+            ma_hs = hs.get("ma_hs", "")
+            ho_ten = hs.get("ho_ten", "")
+            lop = hs.get("lop", "")
+
+            # Nếu có nhập từ khóa tìm kiếm thì lọc theo Mã học sinh
+            if keyword and (keyword not in ma_hs.lower()):
+                continue
+
+            tb_ca_nam = dict_diem.get(ma_hs, "N/A")
+            xep_loai = self.tinh_xep_loai(tb_ca_nam) if tb_ca_nam != "N/A" else "Chưa có điểm"
+
+            self.tree.insert("", "end", values=(stt, ma_hs, ho_ten, lop, tb_ca_nam, xep_loai))
+            stt += 1

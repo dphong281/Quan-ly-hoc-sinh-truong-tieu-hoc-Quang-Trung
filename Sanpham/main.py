@@ -36,7 +36,6 @@ class App:
 
         DashboardPage(self.current_page, self, username)
 
-
 if __name__ == "__main__":
     root = ctk.CTk()
     app_manager = App(root)

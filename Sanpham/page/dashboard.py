@@ -108,10 +108,6 @@ class DashboardPage:
         self.clear()
         GV_Controller(self.view.change)
 
-    def danh_gia(self):
-        self.clear()
-        DanhGiaView(self.view.change)
-
     def tai_chinh(self):
         self.clear()
         trang_tc = TaiChinh(self.view.change)
@@ -147,3 +143,9 @@ class DashboardPage:
             os.startfile(path_pdf)
         except Exception as e:
             messagebox.showerror("Lỗi", f"Không thể mở file: {e}")
+
+    def danh_gia(self):
+        self.clear()
+
+
+        DanhGiaView(self.view.change, self.app_manager)
