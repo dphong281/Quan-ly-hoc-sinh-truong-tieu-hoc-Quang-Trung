@@ -3,7 +3,7 @@ from Sanpham.common.gd_login import LoginView
 from Sanpham.page.dashboard import DashboardPage
 
 # Cấu hình giao diện tổng thể
-ctk.set_appearance_mode("Light")  # Hoặc "Dark", "Light"
+ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
 
 
@@ -23,7 +23,6 @@ class App:
     def show_login(self):
         self.clear()
 
-        # Dùng ctk.CTkFrame thay cho tk.Frame
         self.current_page = ctk.CTkFrame(self.root, fg_color="#D1E9F6")
         self.current_page.pack(fill="both", expand=True)
 
@@ -32,14 +31,12 @@ class App:
     def show_dashboard(self, username):
         self.clear()
 
-        # Dùng ctk.CTkFrame thay cho tk.Frame
         self.current_page = ctk.CTkFrame(self.root, fg_color="#F5F5F5")
         self.current_page.pack(fill="both", expand=True)
 
         DashboardPage(self.current_page, self, username)
 
 if __name__ == "__main__":
-    # Khởi tạo cửa sổ chính bằng ctk.CTk()
     root = ctk.CTk()
     app_manager = App(root)
     root.mainloop()

@@ -11,7 +11,7 @@ class GV_View:
         self.view()
 
     def view(self):
-        """Xây dựng toàn bộ giao diện bằng CustomTkinter"""
+
         # Frame chính
         self.main_frame = ctk.CTkFrame(self.master, fg_color="#f5f6fa", corner_radius=0)
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
@@ -38,17 +38,17 @@ class GV_View:
         self.search_entry.bind("<KeyRelease>", lambda e: self.controller.tim_kiem())
         self.search_entry.bind("<Return>", lambda e: self.controller.tim_kiem())
 
-        # --- BÊN PHẢI TOOLBAR: Các nút bấm ---
+        #  BÊN PHẢI TOOLBAR: Các nút bấm
         right_toolbar = ctk.CTkFrame(toolbar, fg_color="transparent")
         right_toolbar.pack(side="right")
 
         # Danh sách nút bấm
         buttons = [
-            ("🗑️ Xóa", "#e74a3b", self.controller.xoa),
-            ("✏️ Sửa", "#f6c23e", self.controller.sua),
-            ("➕ Thêm mới", "#1cc88a", self.controller.them),
-            ("📂 Nhập file", "green", self.controller.import_data),
-            ("📤 Xuất file", "blue", self.controller.export_data)
+            (" Xóa", "#e74a3b", self.controller.xoa),
+            (" Sửa", "#f6c23e", self.controller.sua),
+            (" Thêm mới", "#1cc88a", self.controller.them),
+            (" Nhập file", "green", self.controller.import_data),
+            (" Xuất file", "blue", self.controller.export_data)
         ]
 
         for text, color, cmd in buttons:
@@ -56,7 +56,7 @@ class GV_View:
                                 font=("Arial", 9, "bold"), width=100, command=cmd)
             btn.pack(side="right", padx=5)
 
-        # Frame chứa bảng dữ liệu (Bọc Treeview trong CTkFrame)
+        # Frame chứa bảng dữ liệu
         tree_frame = ctk.CTkFrame(self.main_frame, fg_color="white")
         tree_frame.pack(fill="both", expand=True)
 
@@ -70,7 +70,7 @@ class GV_View:
         self.tree.heading("ma_gv", text="Mã Giáo Viên")
         self.tree.heading("bo_mon", text="Bộ Môn")
 
-        # Kích thước cột giữ nguyên theo yêu cầu của bạn
+        # Kích thước cột
         self.tree.column("STT", width=60, anchor="center")
         self.tree.column("ho_ten", width=350, anchor="w")
         self.tree.column("ma_gv", width=150, anchor="center")

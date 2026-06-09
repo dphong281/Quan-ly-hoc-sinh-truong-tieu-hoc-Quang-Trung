@@ -7,7 +7,7 @@ class DiemPopup:
     def __init__(self, parent, controller, student_info):
         self.parent = parent
         self.controller = controller
-        self.student_info = student_info  # Chứa {ma_hs, ho_ten, lop, giua_cu, cuoi_cu}
+        self.student_info = student_info
 
         self.pop = tk.Toplevel(self.parent)
         self.pop.title("Nhập điểm học sinh")
@@ -57,7 +57,7 @@ class DiemPopup:
             messagebox.showwarning("Cảnh báo", "Vui lòng nhập đầy đủ điểm!")
             return
 
-        # Kiểm tra định dạng số (hỗ trợ thập phân) và khoảng từ 0-10
+        # Kiểm tra định dạng số
         def is_valid_score(score_str):
             try:
                 score = float(score_str.replace(",", "."))

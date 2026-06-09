@@ -41,7 +41,7 @@
     Sanpham/database/hocsinh.csv, giaovien.csv, diemso.csv: Các tệp lưu trữ dữ liệu chính.
 
 💡 Hướng dẫn sử dụng
-    Khi nhập liệu: Hãy đảm bảo Mã học sinh/Mã giáo viên là các chữ số. Hệ thống sẽ tự động chặn các thông tin không hợp lệ.
+    Khi nhập liệu: Hãy đảm bảo Tên học sinh/Tên giáo viên là các chữ cái. Hệ thống sẽ tự động chặn các thông tin không hợp lệ.
     Khi import Excel: Vui lòng sử dụng file Excel đúng định dạng cấu trúc của ứng dụng (có thể xuất một file mẫu từ ứng dụng để biết cấu trúc cột).
     Khi ứng dụng đang xử lý: Nếu thấy biểu tượng Loading hiện lên, vui lòng chờ trong giây lát để hệ thống hoàn tất xử lý dữ liệu ở luồng ngầm.
 🛡 Bảo mật & Lưu ý

@@ -6,11 +6,11 @@ class CaiDatView:
         self.master = master
         self.username = username
 
-
         self.header()
         self.than_giao_dien()
         self.menu_trai()
         self.noi_dung_phai()
+
 
     def header(self):
         header_frame = ctk.CTkFrame(self.master, fg_color="#3cb3de", height=50, corner_radius=0)
@@ -20,9 +20,11 @@ class CaiDatView:
             header_frame, text="CÀI ĐẶT", font=("Arial", 14, "bold"), text_color="white"
         ).pack(side="left", padx=20, pady=12)
 
+
     def than_giao_dien(self):
         self.body_frame = ctk.CTkFrame(self.master, fg_color="#f8fafc", corner_radius=0)
         self.body_frame.pack(fill="both", expand=True, padx=15, pady=15)
+
 
     def menu_trai(self):
         self.left_menu = ctk.CTkFrame(
@@ -41,6 +43,7 @@ class CaiDatView:
             btn.pack(fill="x", pady=5, padx=10)
             self.menu_buttons[text] = btn
 
+
     def noi_dung_phai(self):
         self.right_content = ctk.CTkFrame(
             self.body_frame, fg_color="white", corner_radius=5, border_width=1, border_color="#e2e8f0"
@@ -55,7 +58,7 @@ class CaiDatView:
         for f in [self.khung_he_thong, self.khung_bao_mat, self.khung_about]:
             f.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        # --- Nội dung Khung Hệ thống ---
+        # --- Khung hệ thống ---
         ctk.CTkLabel(self.khung_he_thong, text="[ THÔNG TIN TÀI KHOẢN ]", text_color="#3cb3de",
                      font=("Arial", 12, "bold")).pack(anchor="w", padx=20, pady=20)
         self.ent_ho_ten = self._tao_input(self.khung_he_thong, "Họ và Tên:")
@@ -64,7 +67,7 @@ class CaiDatView:
         self.btn_save = ctk.CTkButton(self.khung_he_thong, text="Lưu", fg_color="#3cb3de", width=100)
         self.btn_save.pack(anchor="w", padx=20, pady=20)
 
-        # --- Nội dung Khung Bảo mật ---
+        # --- Khung bảo mật ---
         ctk.CTkLabel(self.khung_bao_mat, text="[ BẢO MẬT ]", text_color="#3cb3de", font=("Arial", 12, "bold")).pack(
             anchor="w", padx=20, pady=20)
         self.ent_pass = self._tao_input(self.khung_bao_mat, "Mật khẩu:", show="*")
@@ -73,11 +76,12 @@ class CaiDatView:
         self.btn_change = ctk.CTkButton(self.khung_bao_mat, text="Đổi mật khẩu", fg_color="#3cb3de", width=150)
         self.btn_change.pack(anchor="w", padx=20, pady=20)
 
-        # --- Nội dung Khung Giới thiệu ---
+        # --- Khung giới thiệu ---
         ctk.CTkLabel(self.khung_about, text="GIỚI THIỆU", font=("Arial", 14, "bold")).pack(pady=20)
         ctk.CTkLabel(self.khung_about, text="Phần mềm Quản lý Học sinh v1.0\nNhóm phát triển : Nhóm 6\n Liên hệ: danhphong28011@gmail.com").pack()
 
         self.khung_he_thong.tkraise()
+
 
     def _tao_input(self, parent, label, show=""):
         frame = ctk.CTkFrame(parent, fg_color="transparent")
