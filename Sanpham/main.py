@@ -38,7 +38,6 @@ class App:
 
         DashboardPage(self.current_page, self, username)
 
-
 if __name__ == "__main__":
     # Khởi tạo cửa sổ chính bằng ctk.CTk()
     root = ctk.CTk()
