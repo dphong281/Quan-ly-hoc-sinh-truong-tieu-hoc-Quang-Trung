@@ -1,6 +1,7 @@
 import tkinter as tk
 import csv
 from tkinter import messagebox
+import re
 
 from Sanpham.common.gd_caidat import CaiDatView
 
@@ -36,35 +37,52 @@ class CaiDatPage(tk.Frame):
         email = self.view.ent_email.get().strip()
         sdt = self.view.ent_sdt.get().strip()
 
-        if ho_ten == "" or email == "" or sdt == "":
+        # Kiểm tra để trống
+        if not ho_ten or not email or not sdt:
             messagebox.showwarning("Cảnh báo", "Vui lòng nhập đầy đủ thông tin!")
+            return
+
+        if not re.match(r'^[a-zA-ZÀ-Ỹà-ỹ\s]+$', ho_ten, re.UNICODE):
+            messagebox.showerror("Lỗi", "Họ tên không được chứa số hoặc ký tự đặc biệt!")
+            return
+
+        # Kiểm tra định dạng Email
+        email_pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(email_pattern, email):
+            messagebox.showerror("Lỗi", "Email không hợp lệ!")
+            return
+
+        # Kiểm tra số điện thoại
+        if not sdt.isdigit():
+            messagebox.showerror("Lỗi", "Số điện thoại phải là các chữ số!")
             return
 
         rows = []
         user_ton_tai = False
 
-        file_doc = open(self.file_path, "r", encoding="utf-8")
-        reader = csv.reader(file_doc)
-        for row in reader:
-            if row and len(row) >= 2:
-                if row[0] == self.username:
-                    password = row[1]
+        try:
+            with open(self.file_path, "r", encoding="utf-8") as file_doc:
+                reader = csv.reader(file_doc)
+                for row in reader:
+                    if row and len(row) >= 2:
+                        if row[0] == self.username:
+                            password = row[1]
+                            row = [self.username, password, ho_ten, email, sdt]
+                            user_ton_tai = True
+                    rows.append(row)
 
-                    row = [self.username, password, ho_ten, email, sdt]
-                    user_ton_tai = True
-                rows.append(row)
-        file_doc.close()
+            if not user_ton_tai:
+                messagebox.showerror("Lỗi", "Tài khoản không tồn tại!")
+                return
 
-        if user_ton_tai == False:
-            messagebox.showerror("Lỗi", "Tài khoản không tồn tại !")
-            return
+            with open(self.file_path, "w", newline="", encoding="utf-8") as file_ghi:
+                writer = csv.writer(file_ghi)
+                writer.writerows(rows)
 
-        file_ghi = open(self.file_path, "w", newline="", encoding="utf-8")
-        writer = csv.writer(file_ghi)
-        writer.writerows(rows)
-        file_ghi.close()
+            messagebox.showinfo("Thành công", "Đã lưu thông tin cá nhân!")
 
-        messagebox.showinfo("Thành công", "Đã lưu thông tin cá nhân!")
+        except Exception as e:
+            messagebox.showerror("Lỗi hệ thống", f"Không thể lưu file: {e}")
 
 
     def doi_mat_khau(self):

@@ -84,7 +84,10 @@ class GV_Controller:
         threading.Thread(target=_task_export, daemon=True).start()
 
     def import_data(self):
-        path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        path = filedialog.askopenfilename(
+            title="Chọn file Excel danh sách giáo viên",
+            filetypes=[("Excel files", "*.xlsx *.xls")]
+        )
         if not path:
             return
 
@@ -93,19 +96,36 @@ class GV_Controller:
         def _task_import():
             try:
                 # Đọc file
-                df = pd.read_excel(path)
+                df = pd.read_excel(path, engine='openpyxl')
+                df.columns = df.columns.str.strip()
+
+                # Kiểm tra dữ liệu
+                if df.empty:
+                    raise ValueError("File Excel trống.")
+
+                # KIỂM TRA ĐỊNH DẠNG
+                required_columns = ['ho_ten', 'ma_gv', 'bo_mon']
+                missing = [c for c in required_columns if c.lower() not in [col.lower() for col in df.columns]]
+                if missing:
+                    raise ValueError(f"Lỗi ! ")
+
+                # Lưu dữ liệu
                 self.query.save_csv(df, self.csv_file)
 
-                # Quay về luồng chính để cập nhật
-                self.parent.after(0, lambda: self.loading_screen.hide())
-                self.parent.after(0, self.load_data)  # Load lại dữ liệu lên Treeview
-                self.parent.after(0, lambda: messagebox.showinfo("Thành công", "Đã nhập bảng excel!"))
+                # Cập nhật giao diện
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, self.load_data)
+                self.parent.after(0, messagebox.showinfo, "Thành công", "Đã nhập danh sách giáo viên!")
+
+            except PermissionError:
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, messagebox.showerror, "Lỗi file", "Đang mở file Excel, vui lòng đóng lại!")
 
             except Exception as e:
-                self.parent.after(0, lambda: self.loading_screen.hide())
-                self.parent.after(0, lambda: messagebox.showerror("Lỗi", f"Không thể nhập file: {e}"))
+                error_msg = str(e)
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, messagebox.showerror, "Lỗi nhập liệu", f"Không thể nhập file:\n{error_msg}")
 
-        # Khởi chạy
         threading.Thread(target=_task_import, daemon=True).start()
 
     def load_data(self):
