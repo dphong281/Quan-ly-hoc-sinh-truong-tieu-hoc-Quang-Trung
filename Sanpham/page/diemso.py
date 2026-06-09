@@ -148,7 +148,8 @@ class DiemSoController:
 
     def import_data(self):
         path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-        if not path: return
+        if not path:
+            return
 
         self.loading_screen.show()
 
@@ -156,15 +157,34 @@ class DiemSoController:
             try:
                 # Đọc file Excel
                 df = pd.read_excel(path)
+
+                # Xử lý khoảng trắng thừa ở tiêu đề cột (giúp tránh lỗi format)
+                df.columns = df.columns.str.strip()
+
+                # Kiểm tra dữ liệu rỗng
+                if df.empty:
+                    raise ValueError("File Excel này không có dữ liệu!")
+
+                # Kiểm tra các cột bắt buộc
+                required_columns = ['MaSV', 'Diem']
+                if not all(col in df.columns for col in required_columns):
+                    raise ValueError(f"Lỗi !")
+
+                # Lưu file
                 self.query.save_csv(df, self.diem_path)
 
-                self.parent.after(0, lambda: self.loading_screen.hide())
+                #  Cập nhật giao diện
+                self.parent.after(0, self.loading_screen.hide)
                 self.parent.after(0, self.tai_du_lieu_async)
-                self.parent.after(0, lambda: messagebox.showinfo("Thành công", "Đã nhập bảng điểm!"))
+                self.parent.after(0, messagebox.showinfo, "Thành công", "Đã nhập bảng điểm!")
 
             except Exception as e:
-                self.parent.after(0, lambda: self.loading_screen.hide())
-                self.parent.after(0, lambda: messagebox.showerror("Lỗi", f"Không thể nhập file: {e}"))
+                # Cấu hình lỗi
+                error_msg = f"Không thể nhập file:\n{str(e)}"
+
+                # Cập nhật giao diện
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, messagebox.showerror, "Lỗi nhập liệu", error_msg)
 
         threading.Thread(target=_task_import, daemon=True).start()
 

@@ -94,7 +94,10 @@ class QLHSController:
             messagebox.showinfo("Thành công", "Đã xuất Excel!")
 
     def import_data(self):
-        path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        path = filedialog.askopenfilename(
+            title="Chọn file Excel học sinh",
+            filetypes=[("Excel files", "*.xlsx *.xls")]
+        )
         if not path:
             return
 
@@ -102,16 +105,33 @@ class QLHSController:
 
         def _task_import():
             try:
-                df = pd.read_excel(path)
+                df = pd.read_excel(path, engine='openpyxl')
+                df.columns = df.columns.str.strip()
+
+                if df.empty:
+                    raise ValueError("File Excel trống.")
+
+                required_cols = ['mahs', 'hoten', 'lop']
+                df.columns = df.columns.str.lower()
+                missing = [c for c in required_cols if c not in df.columns]
+
+                if missing:
+                    raise ValueError(f"Lỗi")
+
                 self.query.save_csv(df, self.csv_file)
 
                 self.parent.after(0, self.loading_screen.hide)
                 self.parent.after(0, self.load_data_async)
-                self.parent.after(0, lambda: messagebox.showinfo("Thành công", "Đã nhập dữ liệu từ Excel!"))
+                self.parent.after(0, messagebox.showinfo, "Thành công", "Đã nhập dữ liệu!")
+
+            except PermissionError:
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, messagebox.showerror, "Lỗi file", "File đang được mở ở ứng dụng khác!")
 
             except Exception as e:
+                error_msg = str(e)
                 self.parent.after(0, self.loading_screen.hide)
-                self.parent.after(0, lambda: messagebox.showerror("Lỗi", f"Không thể nhập file: {e}"))
+                self.parent.after(0, messagebox.showerror, "Lỗi xử lý", f"Không thể đọc file:\n{error_msg}")
 
         threading.Thread(target=_task_import, daemon=True).start()
 
