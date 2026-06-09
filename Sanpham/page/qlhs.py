@@ -13,7 +13,6 @@ class QLHSController:
         self.parent = parent
         self.color_navy = "#1e376d"
 
-        # Kết nối với Model Query dùng chung
         self.query = Query()
         self.csv_file = "hocsinh.csv"
 
@@ -25,36 +24,28 @@ class QLHSController:
         self.load_data_async()
 
     def load_data_async(self):
-        """Hàm khởi tạo việc tải dữ liệu (Chạy ở Main Thread)"""
-        self.loading_screen.show()  # 1. Hiện loading
+        self.loading_screen.show()
         threading.Thread(target=self._xu_ly_load_data, daemon=True).start()  # 2. Chạy Thread
 
     def _xu_ly_load_data(self):
-        """Hàm xử lý dữ liệu nặng (Chạy ở Worker Thread)"""
-        # Đọc dữ liệu từ file CSV
         data = self.query.get_all(self.csv_file)
 
-        # 3. Gửi dữ liệu về Main Thread để vẽ giao diện
         self.parent.after(0, lambda: self._hoan_thanh_load_data(data))
 
     def _hoan_thanh_load_data(self, data):
-        """Hàm cập nhật giao diện (Chạy ở Main Thread)"""
-        # Xóa bảng cũ
         for item in self.view.tree.get_children():
             self.view.tree.delete(item)
 
-        # Nạp dữ liệu mới
         for row in data:
             self.view.tree.insert("", "end", values=(
                 row.get('stt'), row.get('ho_ten'),
                 row.get('ma_hs'), row.get('lop')
             ))
 
-        self.loading_screen.hide()  # 4. Tắt loadin
+        self.loading_screen.hide()
 
 
     def load_data(self):
-        """Xóa bảng cũ và nạp lại dữ liệu từ file CSV"""
         for item in self.view.tree.get_children():
             self.view.tree.delete(item)
 
@@ -111,27 +102,23 @@ class QLHSController:
 
         def _task_import():
             try:
-                # 1. Công việc nặng (Đọc và lưu file) chạy ở thread phụ
                 df = pd.read_excel(path)
                 self.query.save_csv(df, self.csv_file)
 
-                # 2. Quay về luồng chính (Main Thread) để cập nhật giao diện
                 self.parent.after(0, self.loading_screen.hide)
                 self.parent.after(0, self.load_data_async)
                 self.parent.after(0, lambda: messagebox.showinfo("Thành công", "Đã nhập dữ liệu từ Excel!"))
 
             except Exception as e:
-                # 3. Xử lý lỗi an toàn ở luồng chính
                 self.parent.after(0, self.loading_screen.hide)
                 self.parent.after(0, lambda: messagebox.showerror("Lỗi", f"Không thể nhập file: {e}"))
 
-        # Khởi chạy thread
         threading.Thread(target=_task_import, daemon=True).start()
 
     def student_form_popup(self, student_data=None):
         pop = tk.Toplevel(self.parent)
         pop.title("Thêm/Sửa học sinh")
-        pop.geometry("300x300")  # Tăng chiều cao một chút để dễ nhìn
+        pop.geometry("300x300")
 
         entries = {"name": tk.Entry(pop), "id": tk.Entry(pop), "class": tk.Entry(pop)}
         tk.Label(pop, text="Họ tên:").pack();
@@ -144,7 +131,7 @@ class QLHSController:
         if student_data:
             entries["name"].insert(0, student_data["ho_ten"])
             entries["id"].insert(0, student_data["ma_hs"])
-            entries["id"].config(state="disabled")  # Mã HS không được sửa khi đang ở mode Sửa
+            entries["id"].config(state="disabled")
             entries["class"].insert(0, student_data["lop"])
 
         def luu():
@@ -152,8 +139,7 @@ class QLHSController:
             ma_hs = entries["id"].get().strip()
             lop = entries["class"].get().strip()
 
-            # --- VALIDATION ---
-            # 1. Không để trống
+            # Không để trống
             if not ho_ten or not ma_hs or not lop:
                 messagebox.showwarning("Cảnh báo", "Vui lòng nhập đầy đủ thông tin!")
                 return
@@ -162,14 +148,14 @@ class QLHSController:
                 messagebox.showerror("Lỗi", "Tên học sinh không được chứa ký tự đặc biệt hoặc số!")
                 return
 
-            # 4. Kiểm tra trùng Mã HS (Chỉ check khi thêm mới)
+            # Kiểm tra trùng Mã HS (Chỉ check khi thêm mới)
             if not student_data:
                 df_check = self.query.read_csv(self.csv_file)
                 if ma_hs in df_check["ma_hs"].astype(str).values:
                     messagebox.showerror("Lỗi", "Mã học sinh này đã tồn tại!")
                     return
 
-            # --- THỰC HIỆN LƯU ---
+            # LƯU
             df = self.query.read_csv(self.csv_file)
             if student_data:
                 self.query.update_row(self.csv_file, "ma_hs", ma_hs,

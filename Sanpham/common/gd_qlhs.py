@@ -11,20 +11,19 @@ class QLHSView:
         self.view()
 
     def view(self):
-        # Frame chính dùng CTkFrame
+
         self.main_frame = ctk.CTkFrame(self.master, fg_color="#f5f6fa", corner_radius=0)
         self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Tiêu đề
-        title_label = ctk.CTkLabel(self.main_frame, text="QUẢN LÝ HỌC SINH",
-                                   font=("Arial", 16, "bold"), text_color=self.color_navy)
+        title_label = ctk.CTkLabel(self.main_frame, text="QUẢN LÝ HỌC SINH", font=("Arial", 16, "bold"), text_color=self.color_navy)
         title_label.pack(anchor="w", pady=(0, 15))
 
         # Toolbar
         toolbar = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         toolbar.pack(fill="x", pady=(0, 15))
 
-        # --- LEFT TOOLBAR: Tìm kiếm ---
+        # LEFT TOOLBAR: Tìm kiếm
         left_toolbar = ctk.CTkFrame(toolbar, fg_color="transparent")
         left_toolbar.pack(side="left", fill="x", expand=True)
 
@@ -35,23 +34,23 @@ class QLHSView:
 
         self.search_entry.bind("<KeyRelease>", lambda e: self.controller.tim_kiem())
 
-        # --- RIGHT TOOLBAR: Nút bấm ---
+        #  RIGHT TOOLBAR: Nút bấm
         right_toolbar = ctk.CTkFrame(toolbar, fg_color="transparent")
         right_toolbar.pack(side="right")
 
-        # Nút bấm dùng CTkButton
-        ctk.CTkButton(right_toolbar, text="🗑️ Xóa", fg_color="#e74a3b", width=80, command=self.controller.xoa).pack(
+        # Nút bấm
+        ctk.CTkButton(right_toolbar, text=" Xóa", fg_color="#e74a3b", width=80, command=self.controller.xoa).pack(
             side="right", padx=5)
-        ctk.CTkButton(right_toolbar, text="✏️ Sửa", fg_color="#f6c23e", width=80, command=self.controller.sua).pack(
+        ctk.CTkButton(right_toolbar, text=" Sửa", fg_color="#f6c23e", width=80, command=self.controller.sua).pack(
             side="right", padx=5)
-        ctk.CTkButton(right_toolbar, text="➕ Thêm mới", fg_color="#1cc88a", width=100,
+        ctk.CTkButton(right_toolbar, text=" Thêm mới", fg_color="#1cc88a", width=100,
                       command=self.controller.them).pack(side="right", padx=5)
         ctk.CTkButton(right_toolbar, text="Nhập file", fg_color="green", width=90,
                       command=self.controller.import_data).pack(side="right", padx=5)
         ctk.CTkButton(right_toolbar, text="Xuất file", fg_color="blue", width=90,
                       command=self.controller.export_data).pack(side="right", padx=5)
 
-        # Frame chứa bảng dữ liệu (Treeview vẫn dùng ttk vì CustomTkinter chưa có Treeview riêng)
+        # Frame chứa bảng dữ liệu
         tree_frame = ctk.CTkFrame(self.main_frame, fg_color="white", border_width=1, border_color="#e2e8f0")
         tree_frame.pack(fill="both", expand=True)
 

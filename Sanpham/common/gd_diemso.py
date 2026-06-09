@@ -15,7 +15,7 @@ class DiemSoView:
 
         # Tiêu đề
         ctk.CTkLabel(
-            self.main_frame, text="📊 QUẢN LÝ ĐIỂM SỐ",
+            self.main_frame, text=" QUẢN LÝ ĐIỂM SỐ",
             font=("Arial", 20, "bold"), text_color=self.color_navy
         ).pack(anchor="w", pady=(0, 15))
 
@@ -30,16 +30,16 @@ class DiemSoView:
         self.search_entry.bind("<KeyRelease>", lambda e: self.controller.tim_kiem())
 
         # Button nhóm phải
-        btn_export = ctk.CTkButton(toolbar, text="📤 Xuất Excel", fg_color="#007bff", width=120, command=self.controller.export_data)
+        btn_export = ctk.CTkButton(toolbar, text=" Xuất Excel", fg_color="#007bff", width=120, command=self.controller.export_data)
         btn_export.pack(side="right", padx=5)
 
-        btn_import = ctk.CTkButton(toolbar, text="📥 Nhập Excel", fg_color="#28a745", width=120, command=self.controller.import_data)
+        btn_import = ctk.CTkButton(toolbar, text=" Nhập Excel", fg_color="#28a745", width=120, command=self.controller.import_data)
         btn_import.pack(side="right", padx=5)
 
-        btn_edit = ctk.CTkButton(toolbar, text="✏️ Nhập điểm", fg_color="#f6c23e", text_color="white", width=120, command=self.controller.sua_diem_popup)
+        btn_edit = ctk.CTkButton(toolbar, text="✏ Nhập điểm", fg_color="#f6c23e", text_color="white", width=120, command=self.controller.sua_diem_popup)
         btn_edit.pack(side="right", padx=5)
 
-        # Bảng dữ liệu (Giữ nguyên ttk.Treeview vì CTK chưa có widget này)
+        # Bảng dữ liệu
         tree_frame = ctk.CTkFrame(self.main_frame, fg_color="white")
         tree_frame.pack(fill="both", expand=True)
 

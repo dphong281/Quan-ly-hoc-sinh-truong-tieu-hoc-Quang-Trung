@@ -1,4 +1,3 @@
-import threading
 import csv
 import os
 from tkinter import messagebox
@@ -54,7 +53,9 @@ class DashboardPage:
                 for row in reader:
                     ma = (row.get("ma_hs") or "").strip()
                     if ma: diem_dict[ma] = (row.get("tb_ca_nam") or "").strip()
+
         ds_xep_hang = []
+
         if os.path.exists(hs_path):
             with open(hs_path, mode="r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
@@ -76,6 +77,7 @@ class DashboardPage:
         query = Query()
         tong_hs = len(query.get_all("hocsinh.csv"))
         tong_gv = len(query.get_all("giaovien.csv"))
+
         self.view.the_thong_ke([("Tổng học sinh", f"{tong_hs}", "#4C51BF", ""), ("Giáo viên", f"{tong_gv}", "#48BB78", "")])
         self.view.the_bieu_do()
         self.ve_bieu_do()
@@ -89,10 +91,12 @@ class DashboardPage:
             df = pd.read_csv(db_path)
             df['lop'].value_counts().sort_index().plot(kind='bar', ax=ax, color='#0d62b8')
             plt.tight_layout()
+
             canvas = FigureCanvasTkAgg(fig, master=self.view.canvas_frame)
             canvas.draw()
             canvas.get_tk_widget().pack(fill="both", expand=True)
             plt.close(fig)
+
         except Exception as e:
             print(f"Lỗi vẽ biểu đồ: {e}")
 
@@ -125,18 +129,13 @@ class DashboardPage:
         if messagebox.askyesno("Xác nhận", "Bạn có muốn đăng xuất?"):
             self.app_manager.show_login()
 
-    import os
-    from tkinter import messagebox
 
     def mo_huong_dan_pdf(self):
-        # 1. Lấy đường dẫn của file dashboard.py hiện tại
-        current_file = os.path.abspath(__file__)  # D:\python\Quan-ly... \dashboard.py
 
-        # 2. Tìm đường dẫn tới thư mục 'Sanpham'
-        # Chúng ta tìm chuỗi 'Sanpham' trong đường dẫn
+        current_file = os.path.abspath(__file__)
+
         base_dir = current_file.split('Sanpham')[0] + 'Sanpham'
 
-        # 3. Kết hợp để ra đường dẫn file PDF: Sanpham/assets/Huong_dan.pdf
         path_pdf = os.path.join(base_dir, "assets", "Huong_dan.pdf")
 
         # Kiểm tra

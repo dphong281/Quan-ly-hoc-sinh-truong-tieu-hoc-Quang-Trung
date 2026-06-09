@@ -26,10 +26,8 @@ class CaiDatPage(tk.Frame):
 
     def tab_he_thong(self):
         self.view.khung_he_thong.tkraise()
-
     def tab_bao_mat(self):
         self.view.khung_bao_mat.tkraise()
-
     def tab_about(self):
         self.view.khung_about.tkraise()
 
