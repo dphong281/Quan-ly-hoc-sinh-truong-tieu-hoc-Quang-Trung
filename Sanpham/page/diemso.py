@@ -32,15 +32,21 @@ class DiemSoController:
         df_hs = self.query.read_csv(self.hs_path)
         df_diem = self.query.read_csv(self.diem_path)
 
-        if df_hs.empty:
-            self.parent.after(0, self.loading_screen.hide)
-            return
+        ds_ma_hs_diem = df_diem['ma_hs'].astype(str).tolist() if not df_diem.empty else []
 
-        if not df_diem.empty:
-            df_full = pd.merge(df_hs, df_diem, on="ma_hs", how="left")
-        else:
-            df_full = df_hs
-            df_full[['giua_ky', 'cuoi_ky', 'tb_ca_nam']] = ""
+        hs_moi = df_hs[~df_hs['ma_hs'].astype(str).isin(ds_ma_hs_diem)]
+
+        if not hs_moi.empty:
+            them_vao = pd.DataFrame({
+                'ma_hs': hs_moi['ma_hs'],
+                'giua_ky': "",
+                'cuoi_ky': "",
+                'tb_ca_nam': ""
+            })
+            df_diem = pd.concat([df_diem, them_vao], ignore_index=True)
+            self.query.save_csv(df_diem, self.diem_path)
+
+        df_full = pd.merge(df_hs, df_diem, on="ma_hs", how="left")
 
         self.parent.after(0, lambda: self._hoan_thanh_tai_du_lieu(df_full))
 
