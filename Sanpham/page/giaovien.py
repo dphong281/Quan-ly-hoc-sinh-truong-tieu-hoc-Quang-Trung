@@ -4,7 +4,7 @@ from tkinter import messagebox, filedialog
 import pandas as pd
 from Sanpham.model.query import Query
 from Sanpham.common.gd_giaovien import GV_View
-from Sanpham.assets.loading import LoadingScreen  # Import LoadingScreen
+from Sanpham.assets.loading import LoadingScreen
 
 
 class GV_Controller:
@@ -78,10 +78,20 @@ class GV_Controller:
         self.loading_screen.show()
 
         def _task_export():
-            self.query.read_csv(self.csv_file).to_excel(path, index=False)
-            self.parent.after(0, self.loading_screen.hide)
+            try:
+                # xuất file
+                self.query.read_csv(self.csv_file).to_excel(path, index=False)
+
+                # Cập nhật giao diện
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, lambda: messagebox.showinfo("Thành công", "Đã xuất file thành công!"))
+
+            except Exception as e:
+                self.parent.after(0, self.loading_screen.hide)
+                self.parent.after(0, lambda: messagebox.showerror("Lỗi", f"Không thể xuất file:\n{str(e)}"))
 
         threading.Thread(target=_task_export, daemon=True).start()
+
 
     def import_data(self):
         path = filedialog.askopenfilename(

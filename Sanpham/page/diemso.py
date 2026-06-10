@@ -155,17 +155,13 @@ class DiemSoController:
 
         def _task_import():
             try:
-                # Đọc file Excel
                 df = pd.read_excel(path)
 
-                # Xử lý khoảng trắng thừa ở tiêu đề cột (giúp tránh lỗi format)
                 df.columns = df.columns.str.strip()
 
-                # Kiểm tra dữ liệu rỗng
                 if df.empty:
                     raise ValueError("File Excel này không có dữ liệu!")
 
-                # Kiểm tra các cột bắt buộc
                 required_columns = ['MaSV', 'Diem']
                 if not all(col in df.columns for col in required_columns):
                     raise ValueError(f"Lỗi !")
