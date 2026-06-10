@@ -9,12 +9,12 @@ class DanhGiaView:
         self.master = master
         self.app_instance = app_instance
 
-        # Khởi tạo đường dẫn chính xác tới các file database csv của bạn
+        # Khởi tạo đường dẫn tới các file database csv
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.hocsinh_file = os.path.normpath(os.path.join(self.dir_path, "..", "database", "hocsinh.csv"))
         self.diemso_file = os.path.normpath(os.path.join(self.dir_path, "..", "database", "diemso.csv"))
 
-        # --- TIÊU ĐỀ TRANG ---
+        # tiêu đề
         title_label = ctk.CTkLabel(
             self.master,
             text="📑 ĐÁNH GIÁ VÀ XẾP LOẠI HỌC SINH",
@@ -23,7 +23,7 @@ class DanhGiaView:
         )
         title_label.pack(anchor="w", padx=25, pady=(20, 10))
 
-        # --- THANH TÌM KIẾM ---
+        # thanh tìm kiém
         search_frame = ctk.CTkFrame(self.master, fg_color="transparent")
         search_frame.pack(fill="x", padx=25, pady=10)
 
@@ -42,7 +42,7 @@ class DanhGiaView:
                                     width=100)
         btn_refresh.pack(side="left", padx=5)
 
-        # --- BẢNG HIỂN THỊ DỮ LIỆU (TREEVIEW) ---
+        # bảng hiện dl
         table_frame = ctk.CTkFrame(self.master, fg_color="white", corner_radius=8)
         table_frame.pack(fill="both", expand=True, padx=25, pady=(10, 25))
 
@@ -69,7 +69,7 @@ class DanhGiaView:
         self.tree.pack(side="left", fill="both", expand=True, padx=5, pady=5)
         scrollbar.pack(side="right", fill="y")
 
-        # Nạp dữ liệu tự động lên bảng ngay khi mở trang
+
         self.load_data()
 
     def doc_file_csv(self, file_path):
@@ -101,7 +101,7 @@ class DanhGiaView:
         self.load_data()
 
     def load_data(self):
-        # Xóa dữ liệu cũ trên bảng trước khi nạp dữ liệu mới
+        # xóa dữ liệu cũ trên bảng trước khi nạp dữ liệu mới
         for item in self.tree.get_children():
             self.tree.delete(item)
 
@@ -109,7 +109,7 @@ class DanhGiaView:
         list_hocsinh = self.doc_file_csv(self.hocsinh_file)
         list_diemso = self.doc_file_csv(self.diemso_file)
 
-        # Tạo từ điển điểm để map nhanh theo mã học sinh
+        # tạo từ điển điểm để map nhanh theo mã học sinh
         dict_diem = {d.get("ma_hs"): d.get("tb_ca_nam", "0") for d in list_diemso if d.get("ma_hs")}
 
         stt = 1
@@ -118,7 +118,7 @@ class DanhGiaView:
             ho_ten = hs.get("ho_ten", "")
             lop = hs.get("lop", "")
 
-            # Nếu có nhập từ khóa tìm kiếm thì lọc theo Mã học sinh
+            # nếu có nhập từ khóa tìm kiếm thì lọc theo mã học sinh
             if keyword and (keyword not in ma_hs.lower()):
                 continue
 
